@@ -644,3 +644,112 @@ func TestRightClickOnACardRetargetsAnAlreadyOpenMenu(t *testing.T) {
 func next(model tea.Model, _ tea.Cmd) Model {
 	return model.(Model)
 }
+
+func TestPrincipalBranchWorktreeMenuHasNoTagOrPin(t *testing.T) {
+	w := world(
+		wt("/w/m", "cds", "master", "w1", herdr.StatusIdle),
+	)
+	assignments := map[string]group.Assignment{
+		"/w/m": {Name: "CRD-1", Source: group.SourceJira},
+	}
+
+	cfg := config.Default()
+	cfg.Pane.RightClick = true
+
+	m := Model{
+		cfg:         cfg,
+		world:       w,
+		assignments: assignments,
+		collapsed:   map[string]bool{},
+		rows:        buildRows(w, assignments, map[string]bool{}, ordering{}),
+		width:       40,
+		height:      20,
+		cursor:      1,
+	}
+
+	items := m.menuItems()
+	for _, item := range items {
+		if item.label == "Tag" || item.label == "Pin" {
+			t.Fatalf("menu on principal branch should not contain %q when HidePrincipalBranches is true", item.label)
+		}
+	}
+	if len(items) != 1 || items[0].label != "Open" {
+		t.Fatalf("menu on principal branch should only have Open, got %+v", items)
+	}
+
+	// When HidePrincipalBranches is false, Tag and Pin should be allowed
+	m.cfg.Grouping.HidePrincipalBranches = false
+	itemsAllowed := m.menuItems()
+	hasTag, hasPin := false, false
+	for _, item := range itemsAllowed {
+		if item.label == "Tag" {
+			hasTag = true
+		}
+		if item.label == "Pin" {
+			hasPin = true
+		}
+	}
+	if !hasTag || !hasPin {
+		t.Fatalf("menu should contain Tag and Pin when HidePrincipalBranches is false, got %+v", itemsAllowed)
+	}
+}
+
+func TestStartTagRejectsPrincipalBranch(t *testing.T) {
+	w := world(
+		wt("/w/m", "cds", "master", "w1", herdr.StatusIdle),
+	)
+	assignments := map[string]group.Assignment{
+		"/w/m": {Name: "CRD-1", Source: group.SourceJira},
+	}
+
+	m := Model{
+		cfg:         config.Default(),
+		world:       w,
+		assignments: assignments,
+		rows:        buildRows(w, assignments, map[string]bool{}, ordering{}),
+		width:       40,
+		height:      20,
+		cursor:      1,
+	}
+
+	after := m.startTag()
+
+	if after.mode == modeTag {
+		t.Fatal("startTag on principal branch should not enter modeTag when HidePrincipalBranches is true")
+	}
+	if after.errNote == "" {
+		t.Fatal("startTag on principal branch should set an error note")
+	}
+
+	// When HidePrincipalBranches is false, startTag should open modeTag
+	m.cfg.Grouping.HidePrincipalBranches = false
+	afterAllowed := m.startTag()
+	if afterAllowed.mode != modeTag {
+		t.Fatalf("startTag should enter modeTag when HidePrincipalBranches is false, got mode=%v", afterAllowed.mode)
+	}
+}
+
+func TestPinRejectsPrincipalBranch(t *testing.T) {
+	w := world(
+		wt("/w/m", "cds", "master", "w1", herdr.StatusIdle),
+	)
+	assignments := map[string]group.Assignment{
+		"/w/m": {Name: "CRD-1", Source: group.SourceJira},
+	}
+
+	m := Model{
+		cfg:         config.Default(),
+		world:       w,
+		assignments: assignments,
+		rows:        buildRows(w, assignments, map[string]bool{}, ordering{}),
+		width:       40,
+		height:      20,
+		cursor:      1,
+	}
+
+	after, _ := m.pin()
+
+	if after.errNote == "" {
+		t.Fatal("pin on principal branch should set an error note when HidePrincipalBranches is true")
+	}
+}

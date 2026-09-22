@@ -203,8 +203,8 @@ func (g grid) at(line, column int) (int, bool) {
 
 // featureCards is the top screen of the grid: one card per feature, in the same
 // order the list puts them in.
-func featureCards(world collect.World, assignments map[string]group.Assignment, order ordering) []row {
-	buckets := buildBuckets(world, assignments, order)
+func featureCards(world collect.World, assignments map[string]group.Assignment, order ordering, hidePrincipal ...bool) []row {
+	buckets := buildBuckets(world, assignments, order, hidePrincipal...)
 
 	cards := make([]row, 0, len(buckets))
 	for _, b := range buckets {
@@ -219,8 +219,8 @@ func featureCards(world collect.World, assignments map[string]group.Assignment, 
 // worktreeCards is the screen a feature opens onto: one card per checkout in
 // it. An empty answer means the feature is gone — refreshed away while it was
 // open — and the caller falls back to the feature grid.
-func worktreeCards(world collect.World, assignments map[string]group.Assignment, feature string, order ordering) []row {
-	for _, b := range buildBuckets(world, assignments, order) {
+func worktreeCards(world collect.World, assignments map[string]group.Assignment, feature string, order ordering, hidePrincipal ...bool) []row {
+	for _, b := range buildBuckets(world, assignments, order, hidePrincipal...) {
 		if b.name != feature {
 			continue
 		}

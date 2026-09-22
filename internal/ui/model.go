@@ -502,10 +502,11 @@ func (m *Model) regroup() {
 	inputs := make([]group.Input, 0, len(m.world.Worktrees))
 	for _, wt := range m.world.Worktrees {
 		inputs = append(inputs, group.Input{
-			Path:      wt.Path,
-			Branch:    wt.Branch,
-			Workspace: wt.WorkspaceLabel,
-			RepoRoot:  wt.RepoRoot,
+			Path:        wt.Path,
+			Branch:      wt.Branch,
+			Workspace:   wt.WorkspaceLabel,
+			RepoRoot:    wt.RepoRoot,
+			IsPrincipal: wt.IsPrincipalBranch(),
 		})
 	}
 
@@ -519,7 +520,7 @@ func (m *Model) regroup() {
 // much — see startRename — but rebuild is also what a refresh, a sort, and a
 // fold fall back on, so it always stamps the current labels on regardless.
 func (m *Model) rebuild() {
-	m.rows = applyLabels(buildRows(m.world, m.assignments, m.collapsed, m.order), m.labels())
+	m.rows = applyLabels(buildRows(m.world, m.assignments, m.collapsed, m.order, m.cfg.Grouping.HidePrincipalBranches), m.labels())
 	m.clampCursor()
 	m.rebuildCards()
 }
@@ -530,7 +531,7 @@ func (m *Model) rebuild() {
 // than leaving it on a screen with nothing in it.
 func (m *Model) rebuildCards() {
 	if m.feature != "" {
-		if cards := worktreeCards(m.world, m.assignments, m.feature, m.order); len(cards) > 0 {
+		if cards := worktreeCards(m.world, m.assignments, m.feature, m.order, m.cfg.Grouping.HidePrincipalBranches); len(cards) > 0 {
 			m.cards = cards
 			m.clampCard()
 
@@ -540,7 +541,7 @@ func (m *Model) rebuildCards() {
 		m.feature = ""
 	}
 
-	m.cards = applyLabels(featureCards(m.world, m.assignments, m.order), m.labels())
+	m.cards = applyLabels(featureCards(m.world, m.assignments, m.order, m.cfg.Grouping.HidePrincipalBranches), m.labels())
 	m.clampCard()
 }
 
@@ -988,10 +989,12 @@ func (m Model) menuItems() []menuItem {
 
 	switch cur.kind {
 	case rowWorktree:
-		items = append(items,
-			menuItem{label: "Tag", action: menuTag},
-			menuItem{label: "Pin", action: menuPin},
-		)
+		if cur.worktree != nil && (!m.cfg.Grouping.HidePrincipalBranches || !cur.worktree.IsPrincipalBranch()) {
+			items = append(items,
+				menuItem{label: "Tag", action: menuTag},
+				menuItem{label: "Pin", action: menuPin},
+			)
+		}
 
 	case rowGroup:
 		items = append(items, menuItem{label: "Rename", action: menuRename})
@@ -1453,6 +1456,12 @@ func (m Model) startTag() Model {
 		return m
 	}
 
+	if m.cfg.Grouping.HidePrincipalBranches && cur.worktree != nil && cur.worktree.IsPrincipalBranch() {
+		m.errNote = fmt.Sprintf("cannot tag principal branch %s", cur.worktree.Branch)
+
+		return m
+	}
+
 	m.mode = modeTag
 	m.tagTarget = cur.worktree.Path
 	m.input = m.tags()[cur.worktree.Path]
@@ -1486,6 +1495,12 @@ func (m Model) pin() (Model, tea.Cmd) {
 	cur, ok := m.current()
 	if !ok || cur.kind != rowWorktree {
 		m.errNote = "select a worktree to pin"
+
+		return m, nil
+	}
+
+	if m.cfg.Grouping.HidePrincipalBranches && cur.worktree != nil && cur.worktree.IsPrincipalBranch() {
+		m.errNote = fmt.Sprintf("cannot pin principal branch %s", cur.worktree.Branch)
 
 		return m, nil
 	}

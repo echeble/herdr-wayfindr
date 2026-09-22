@@ -61,6 +61,18 @@ type Input struct {
 	Workspace string
 	// RepoRoot distinguishes repositories for the shared-name rule.
 	RepoRoot string
+	// IsPrincipal reports whether this checkout is on a principal branch
+	// (e.g. main, master, or the repository's default branch).
+	IsPrincipal bool
+}
+
+func (in Input) isPrincipalBranch() bool {
+	if in.IsPrincipal {
+		return true
+	}
+
+	b := strings.ToLower(strings.TrimSpace(in.Branch))
+	return b == "main" || b == "master"
 }
 
 // Assignment is the group a worktree landed in and the rule that put it there.
@@ -71,17 +83,22 @@ type Assignment struct {
 
 // Resolver applies the grouping rules in precedence order.
 type Resolver struct {
-	jira     *regexp.Regexp
-	branch   []*regexp.Regexp
-	useName  bool
-	explicit map[string]string
+	jira          *regexp.Regexp
+	branch        []*regexp.Regexp
+	useName       bool
+	explicit      map[string]string
+	hidePrincipal bool
 }
 
 // NewResolver compiles the configured patterns. config.Load has already
 // rejected anything that does not compile or lacks the named capture, so a
 // pattern that still fails here is simply skipped.
 func NewResolver(cfg config.Grouping, explicit map[string]string) *Resolver {
-	r := &Resolver{useName: cfg.UseWorktreeName, explicit: explicit}
+	r := &Resolver{
+		useName:       cfg.UseWorktreeName,
+		explicit:      explicit,
+		hidePrincipal: cfg.HidePrincipalBranches,
+	}
 
 	if cfg.JiraPattern != "" {
 		if compiled, err := regexp.Compile(cfg.JiraPattern); err == nil {
@@ -133,8 +150,11 @@ func (r *Resolver) Resolve(inputs []Input) map[string]Assignment {
 // perWorktree applies the rules that need only this worktree: an explicit tag,
 // then the ticket key, then the user's branch patterns.
 func (r *Resolver) perWorktree(in Input) (Assignment, bool) {
-	if name := strings.TrimSpace(r.explicit[in.Path]); name != "" {
-		return Assignment{Name: name, Source: SourceExplicit}, true
+	// Principal branches cannot be explicitly tagged when hiding is enabled.
+	if !r.hidePrincipal || !in.isPrincipalBranch() {
+		if name := strings.TrimSpace(r.explicit[in.Path]); name != "" {
+			return Assignment{Name: name, Source: SourceExplicit}, true
+		}
 	}
 
 	// The branch is asked first and the workspace name second: the branch is
@@ -152,7 +172,7 @@ func (r *Resolver) perWorktree(in Input) (Assignment, bool) {
 		}
 	}
 
-	if in.Branch == "" {
+	if in.Branch == "" || in.isPrincipalBranch() {
 		return Assignment{}, false
 	}
 
@@ -184,12 +204,19 @@ func (r *Resolver) bySharedName(inputs []Input) map[string]Assignment {
 	buckets := map[string]*bucket{}
 
 	for _, in := range inputs {
+		if in.isPrincipalBranch() {
+			continue
+		}
+
 		name := filepath.Base(in.Path)
 		if name == "" || name == "." || name == string(filepath.Separator) {
 			continue
 		}
 
 		key := strings.ToLower(name)
+		if key == "main" || key == "master" {
+			continue
+		}
 
 		b := buckets[key]
 		if b == nil {

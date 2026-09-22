@@ -77,6 +77,12 @@ type Grouping struct {
 	// UseWorktreeName groups checkouts that share a directory name across
 	// different repositories.
 	UseWorktreeName bool `json:"use_worktree_name" toml:"use_worktree_name"`
+	// PrincipalBranches names the primary branches (e.g. main, master) that
+	// should not appear in Ungrouped or be tagged.
+	PrincipalBranches []string `json:"principal_branches" toml:"principal_branches"`
+	// HidePrincipalBranches controls whether principal branches (main, master,
+	// or detected default) are omitted from the Ungrouped bucket when unmatched.
+	HidePrincipalBranches bool `json:"hide_principal_branches" toml:"hide_principal_branches"`
 }
 
 type Pane struct {
@@ -133,9 +139,11 @@ var (
 func Default() Config {
 	return Config{
 		Grouping: Grouping{
-			JiraPattern:     DefaultJiraPattern,
-			BranchPatterns:  nil,
-			UseWorktreeName: true,
+			JiraPattern:           DefaultJiraPattern,
+			BranchPatterns:        nil,
+			UseWorktreeName:       true,
+			PrincipalBranches:     []string{"main", "master"},
+			HidePrincipalBranches: true,
 		},
 		Pane: Pane{
 			Placement:  DefaultPlacement,
@@ -260,6 +268,14 @@ func merge(cfg, raw Config, md toml.MetaData) Config {
 
 	if md.IsDefined("grouping", "use_worktree_name") {
 		cfg.Grouping.UseWorktreeName = raw.Grouping.UseWorktreeName
+	}
+
+	if md.IsDefined("grouping", "principal_branches") {
+		cfg.Grouping.PrincipalBranches = raw.Grouping.PrincipalBranches
+	}
+
+	if md.IsDefined("grouping", "hide_principal_branches") {
+		cfg.Grouping.HidePrincipalBranches = raw.Grouping.HidePrincipalBranches
 	}
 
 	if raw.Pane.Placement != "" {

@@ -7,6 +7,7 @@ import (
 	"context"
 	"slices"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -55,10 +56,25 @@ type Worktree struct {
 	// PR is GitHub's answer for this worktree's branch. It stays PRUnknown
 	// when the lookup is off, the remote is not GitHub, or gh could not answer.
 	PR PR
+
+	// IsPrincipal reports whether this checkout is on a principal branch
+	// (e.g. main, master, or the repository's default branch).
+	IsPrincipal bool
 }
 
 // Open reports whether Herdr currently has this checkout open as a workspace.
 func (w Worktree) Open() bool { return w.WorkspaceID != "" }
+
+// IsPrincipalBranch reports whether this checkout is on a principal branch
+// (e.g. main, master, or the repository's default branch).
+func (w Worktree) IsPrincipalBranch() bool {
+	if w.IsPrincipal {
+		return true
+	}
+
+	b := strings.ToLower(strings.TrimSpace(w.Branch))
+	return b == "main" || b == "master"
+}
 
 // AgentTally is how many agents sit in each state: one workspace's, or a whole
 // feature's once its worktrees' are merged.
@@ -151,15 +167,26 @@ type Collector struct {
 	// and it is not GitHub". Presence is what distinguishes that from "not yet
 	// asked", so it is read with the two-value form.
 	slugCache map[string]string
+
+	defaultBranchCache map[string]string
+	principalBranches  []string
 }
 
 func New(client herdr.Client) *Collector {
 	return &Collector{
-		client:    client,
-		gitCache:  map[string]GitStatus{},
-		prCache:   map[string]PR{},
-		slugCache: map[string]string{},
+		client:             client,
+		gitCache:           map[string]GitStatus{},
+		prCache:            map[string]PR{},
+		slugCache:          map[string]string{},
+		defaultBranchCache: map[string]string{},
 	}
+}
+
+// WithPrincipalBranches sets custom principal branch names from user config.
+func (c *Collector) WithPrincipalBranches(branches []string) *Collector {
+	c.principalBranches = branches
+
+	return c
 }
 
 // WithPR turns the pull-request lookup on, which is what CollectPR does at all.
@@ -281,11 +308,12 @@ func (c *Collector) listAllWorktrees(ctx context.Context, snapshot herdr.Snapsho
 			seen[wt.Path] = true
 
 			row := Worktree{
-				Path:     wt.Path,
-				Branch:   wt.BranchName(),
-				RepoName: nonEmpty(res.repoName, wt.Label),
-				RepoRoot: res.root,
-				IsLinked: wt.IsLinkedWorktree,
+				Path:        wt.Path,
+				Branch:      wt.BranchName(),
+				RepoName:    nonEmpty(res.repoName, wt.Label),
+				RepoRoot:    res.root,
+				IsLinked:    wt.IsLinkedWorktree,
+				IsPrincipal: c.isPrincipal(ctx, res.root, wt.BranchName()),
 			}
 
 			if wt.OpenWorkspaceID != nil {
@@ -495,6 +523,53 @@ func (c *Collector) slugFor(ctx context.Context, root string) string {
 	c.mu.Unlock()
 
 	return slug
+}
+
+func (c *Collector) defaultBranchFor(ctx context.Context, root string) string {
+	if root == "" {
+		return ""
+	}
+
+	c.mu.Lock()
+	branch, known := c.defaultBranchCache[root]
+	c.mu.Unlock()
+
+	if known {
+		return branch
+	}
+
+	branch = repoDefaultBranch(ctx, root)
+
+	c.mu.Lock()
+	c.defaultBranchCache[root] = branch
+	c.mu.Unlock()
+
+	return branch
+}
+
+func (c *Collector) isPrincipal(ctx context.Context, root, branch string) bool {
+	if branch == "" {
+		return false
+	}
+
+	clean := strings.ToLower(strings.TrimSpace(branch))
+	if clean == "main" || clean == "master" {
+		return true
+	}
+
+	for _, p := range c.principalBranches {
+		if strings.EqualFold(branch, p) {
+			return true
+		}
+	}
+
+	if defaultBranch := c.defaultBranchFor(ctx, root); defaultBranch != "" {
+		if strings.EqualFold(branch, defaultBranch) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (c *Collector) cachedPR(slug, branch string) (PR, bool) {

@@ -27,6 +27,16 @@ branch_patterns = []
 # repositories. A name used by only one repository never forms a group.
 use_worktree_name = true
 
+# Principal branches of repositories that should never appear in the Ungrouped
+# bucket and cannot be tagged by Wayfindr. Git's remote default branch (e.g.
+# origin/HEAD) is always detected automatically in addition to these names.
+principal_branches = ["main", "master"]
+
+# Hide the repository's principal branch (main, master, or detected default branch)
+# from appearing in the Ungrouped folder when unmatched. Set to false to show
+# principal branches under Ungrouped.
+hide_principal_branches = true
+
 [pane]
 # How the pane draws what it found: list | cards.
 #   list  — every worktree under its feature, one per row, folding groups.

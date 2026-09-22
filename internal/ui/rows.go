@@ -83,10 +83,10 @@ type groupBucket struct {
 }
 
 // buildRows turns a world plus its group assignments into the flat row list.
-func buildRows(world collect.World, assignments map[string]group.Assignment, collapsed map[string]bool, order ordering) []row {
+func buildRows(world collect.World, assignments map[string]group.Assignment, collapsed map[string]bool, order ordering, hidePrincipal ...bool) []row {
 	var rows []row
 
-	for _, b := range buildBuckets(world, assignments, order) {
+	for _, b := range buildBuckets(world, assignments, order, hidePrincipal...) {
 		isCollapsed := collapsed[b.name]
 
 		rows = append(rows, headerRow(b, isCollapsed))
@@ -109,7 +109,12 @@ func buildRows(world collect.World, assignments map[string]group.Assignment, col
 //
 // The list and the card grid are both built from it, so the two always agree on
 // what a feature is, which worktrees are in it, and where it sits.
-func buildBuckets(world collect.World, assignments map[string]group.Assignment, order ordering) []*groupBucket {
+func buildBuckets(world collect.World, assignments map[string]group.Assignment, order ordering, hidePrincipal ...bool) []*groupBucket {
+	hide := true
+	if len(hidePrincipal) > 0 {
+		hide = hidePrincipal[0]
+	}
+
 	buckets := map[string]*groupBucket{}
 
 	for i := range world.Worktrees {
@@ -119,6 +124,10 @@ func buildBuckets(world collect.World, assignments map[string]group.Assignment, 
 
 		name := assignment.Name
 		if name == "" {
+			if hide && wt.IsPrincipalBranch() {
+				continue
+			}
+
 			name = ungroupedLabel
 		}
 

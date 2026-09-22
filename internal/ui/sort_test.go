@@ -26,7 +26,7 @@ func sortable() (collect.World, map[string]group.Assignment) {
 		// alpha: 3rd, status: working, agent: newest
 		seq(wt("/w/c", "k8s", "CCC-3", "w3", herdr.StatusWorking), 90),
 		// and one nothing claimed, which sinks whatever the mode
-		seq(wt("/w/z", "misc", "master", "w4", herdr.StatusBlocked), 99),
+		seq(wt("/w/z", "misc", "sandbox", "w4", herdr.StatusBlocked), 99),
 	)
 
 	return w, assign(map[string]group.Assignment{
