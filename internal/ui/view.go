@@ -638,7 +638,7 @@ func insetRight(s string, width int) string {
 //
 // A card is narrow enough that repository names routinely lose their tails, and
 // a name cut without a mark reads as a different, shorter name —
-// credit-decision-srvc and credit-decision-engine both become "credit-decisi".
+// marketplace-billing-service and credit-decision-engine both become "credit-decisi".
 // The list does not need this: its rows are the full pane wide.
 func clip(s string, width int) string {
 	if width <= 0 || lipgloss.Width(s) <= width {

@@ -15,7 +15,7 @@ import (
 func TestTruncateRespectsWidth(t *testing.T) {
 	// A sidebar is narrow, and a long branch name must not push the pane into
 	// horizontal scroll.
-	long := "  ◌ ca-bnpl-decision-engine · worktree-WAYF-20226_remove_consumer_plan_deprecated_fields"
+	long := "  ◌ marketplace-catalog-service · worktree-WAYF-20226_remove_consumer_plan_deprecated_fields"
 
 	for _, width := range []int{10, 26, 40} {
 		got := truncate(long, width)

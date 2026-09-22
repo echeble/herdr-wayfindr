@@ -96,7 +96,7 @@ version (`herdr-plugin.toml`'s `version` field), newest first.
   (alpha, status, agent — each ascending then descending). Both choices are
   remembered in a new `ui.json` beside `groups.json`.
 - Cards size themselves to their names, so two repositories that would
-  otherwise clip identically (`credit-decision-srvc` vs
+  otherwise clip identically (`marketplace-billing-service` vs
   `credit-decision-engine`) stay distinguishable.
 
 ### Fixed

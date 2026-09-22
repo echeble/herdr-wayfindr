@@ -118,7 +118,7 @@ func TestResolveGroupsAcrossRepositories(t *testing.T) {
 	r := NewResolver(defaultGrouping(), nil)
 
 	got := r.Resolve([]Input{
-		{Path: "/w/cds/wayf-20748", Branch: "WAYF-20748", RepoRoot: "/r/credit-decision-srvc"},
+		{Path: "/w/cds/wayf-20748", Branch: "WAYF-20748", RepoRoot: "/r/marketplace-billing-service"},
 		{Path: "/w/bnpl/wayf-20748", Branch: "WAYF-20748-engine", RepoRoot: "/r/bnpl-decision-engine"},
 		{Path: "/w/qa/wayf-20748", Branch: "worktree/WAYF-20748", RepoRoot: "/r/qa-automation"},
 		{Path: "/w/k8s/other", Branch: "WAYF-19000", RepoRoot: "/r/k8s-template"},

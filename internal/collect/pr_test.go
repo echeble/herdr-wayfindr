@@ -7,15 +7,15 @@ func TestParseRemote(t *testing.T) {
 		remote string
 		want   string
 	}{
-		{"git@github.com:Credify/credit-decision-srvc.git", "Credify/credit-decision-srvc"},
-		{"git@github.com:Credify/credit-decision-srvc", "Credify/credit-decision-srvc"},
+		{"git@github.com:Credify/marketplace-billing-service.git", "Credify/marketplace-billing-service"},
+		{"git@github.com:Credify/marketplace-billing-service", "Credify/marketplace-billing-service"},
 		{"https://github.com/Credify/qa-automation.git", "Credify/qa-automation"},
 		{"https://github.com/Credify/qa-automation/", "Credify/qa-automation"},
 		{"ssh://git@github.com/uplift-inc/bnpl-decision-engine.git", "uplift-inc/bnpl-decision-engine"},
 		{"ssh://git@github.com:22/uplift-inc/bnpl-decision-engine.git", "uplift-inc/bnpl-decision-engine"},
 		{"https://user:token@github.com/Credify/k8s-template.git", "Credify/k8s-template"},
 		// A trailing newline is what `git config --get` actually hands back.
-		{"git@github.com:Credify/credit-decision-srvc.git\n", "Credify/credit-decision-srvc"},
+		{"git@github.com:Credify/marketplace-billing-service.git\n", "Credify/marketplace-billing-service"},
 		// An enterprise host keeps its name, which is the form gh --repo takes.
 		{"git@github.example.com:platform/service.git", "github.example.com/platform/service"},
 		// Not GitHub: never ask, rather than ask and fail once per branch.

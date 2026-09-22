@@ -16,12 +16,12 @@ lets you jump between them from a sidebar pane.
 
 ```
 ▾ ○ WAYF-20226 in progress
-  ◌ ca-bnpl-decision-engine · worktree-WAYF-20226_remove_deprecat ✔
-  ◌ credit-decision-srvc ✱4
-  · credit-decision-srvc · worktree-WAYF-20226 ⧗
+  ◌ marketplace-catalog-service · worktree-WAYF-20226_remove_deprecat ✔
+  ◌ marketplace-billing-service ✱4
+  · marketplace-billing-service · worktree-WAYF-20226 ⧗
 ▾ ○ WAYF-20748 merged
-  · bnpl-decision-engine-server ✔
-  · credit-decision-srvc ↑2 ✔
+  · marketplace-api-gateway ✔
+  · marketplace-billing-service ↑2 ✔
 ▸ ○ Ungrouped
 ```
 
@@ -30,7 +30,7 @@ lets you jump between them from a sidebar pane.
 ```
 ‹ Features                     WAYF-20748
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ ● credit-decision-srvc               ┃
+┃ ● marketplace-billing-service        ┃
 ┃                                      ┃
 ┃ 2 agents working                     ┃
 ┃ ↑3 ✱3                                ┃
@@ -38,7 +38,7 @@ lets you jump between them from a sidebar pane.
 ┃                        ⧗ in progress ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ╭──────────────────────────────────────╮
-│ ◆ ca-bnpl-decision-engine            │
+│ ◆ marketplace-catalog-service        │
 │                                      │
 │ worktree-WAYF-20748                  │
 │ 1 agent blocked                      │
@@ -63,7 +63,7 @@ time you open the panel.
 - **Two views, one state.** `v` switches between a 40-column list and a touch-friendly card grid —
   the same sort, the same groups, the way you last left it.
 - **Sized to the name, not a fixed grid.** A card asks for the width its name needs; rows pack as
-  many cards as the pane can hold at that width, so `credit-decision-srvc` never clips to
+  many cards as the pane can hold at that width, so `marketplace-billing-service` never clips to
   `credit-deci…` next to a card that had room to spare.
 - **One sort, everywhere.** `s` cycles `alpha`, `status`, `agent`, each ascending then descending —
   at both the feature level and the worktree level, so "what should I look at first" has one answer.
@@ -117,7 +117,7 @@ opens the checkout. With the mouse a card takes two clicks: the first selects
 it, and a second click on that same selected card is the press.
 
 **Cards are sized to their names.** A card that cannot show which repository it
-is has failed at the one job it has — `credit-decision-srvc` and
+is has failed at the one job it has — `marketplace-billing-service` and
 `credit-decision-engine` both clip to `credit-deci…` — so a card asks for the
 width its name needs, and a row takes as many cards as it can while still
 showing the longest name among them. The rest move down. Above, two
@@ -160,8 +160,8 @@ same parts unpacked onto their own lines, with room to spell out the ones the
 list can only afford a glyph for.
 
 ```
-  ● credit-decision-srvc · worktree-WAYF-20748 ↑3 ✱3 ·here ⧗
-  1 2                      3                  4     5     6
+  ● marketplace-billing-service · worktree-WAYF-20748 ↑3 ✱3 ·here ⧗
+  1 2                             3                   4     5     6
 ```
 
 1. **the agent** — what is running in this worktree's workspace
@@ -221,7 +221,7 @@ reason a worktree does.
 
 ```
 ╭──────────────────────────────────────╮
-│ ◆ ca-bnpl-decision-engine            │   the same leading glyph
+│ ◆ marketplace-catalog-service        │   the same leading glyph
 │                                      │
 │ worktree-WAYF-20748                  │   the branch
 │ 1 agent blocked                      │   the agent line, counted

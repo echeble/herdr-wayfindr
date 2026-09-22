@@ -31,8 +31,8 @@ func TestPreview(t *testing.T) {
 	}
 
 	w := world(
-		seq(pr(dirty(crew(wt("/w/a", "credit-decision-srvc", "WAYF-20748", "w1", herdr.StatusWorking), herdr.StatusWorking), 1, 2, 3), collect.PROpen), 40),
-		seq(pr(wt("/w/b", "ca-bnpl-decision-engine", "worktree-WAYF-20748", "w2", herdr.StatusBlocked), collect.PRMerged), 10),
+		seq(pr(dirty(crew(wt("/w/a", "marketplace-billing-service", "WAYF-20748", "w1", herdr.StatusWorking), herdr.StatusWorking), 1, 2, 3), collect.PROpen), 40),
+		seq(pr(wt("/w/b", "marketplace-catalog-service", "worktree-WAYF-20748", "w2", herdr.StatusBlocked), collect.PRMerged), 10),
 		pr(wt("/w/c", "k8s-template", "WAYF-20748", "", herdr.StatusUnknown), collect.PRNone),
 		seq(pr(wt("/w/d", "credit-report-srvc", "WAYF-20099", "w4", herdr.StatusDone), collect.PRMerged), 90),
 		seq(wt("/w/e", "wayfindr", "0.8.0", "w5", herdr.StatusIdle), 70),
