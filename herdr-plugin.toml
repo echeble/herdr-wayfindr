@@ -1,0 +1,84 @@
+id = "echebleupgrade.wayfindr"
+name = "Wayfindr"
+version = "0.15.0"
+min_herdr_version = "0.9.0"
+description = "Group worktrees from different workspaces by feature — explicit tag, ticket key, branch pattern or shared name — in a sidebar pane."
+platforms = ["macos", "linux"]
+
+# `herdr plugin link` skips this; a linked checkout must be built by hand.
+[[build]]
+command = ["go", "build", "-o", "bin/herdr-wayfindr", "./cmd/herdr-wayfindr"]
+
+# Tokens are display-only and do not survive a Herdr restart, so the grouping is
+# restamped every time the server comes up.
+[[startup]]
+command = ["sh", "-c", "exec \"$HERDR_PLUGIN_ROOT/bin/herdr-wayfindr\" --report-tokens"]
+
+# The sidebar sits against the left edge of the workspace, between Herdr's own
+# sidebar and your work. Herdr splits only right or down, so pane.sh opens to
+# the right of the leftmost pane and swaps the two.
+#
+# A split placement takes no width — only a popup does — so the pane reads its
+# own layout on startup and moves the divider until it is pane.width columns.
+#
+# A pane's command resolves against the pane's cwd — the repository it was
+# opened in — not the plugin root, so the binary is named by absolute path.
+[[panes]]
+id = "sidebar"
+title = "Features"
+description = "Worktrees across every workspace, grouped by feature."
+placement = "split"
+command = ["sh", "-c", "exec \"$HERDR_PLUGIN_ROOT/bin/herdr-wayfindr\""]
+
+[[actions]]
+id = "toggle"
+title = "Features: toggle sidebar"
+description = "Open the feature sidebar in this workspace, closing the one left in another, or close it if it is already here."
+contexts = ["workspace", "pane"]
+command = ["bash", "herdr/pane.sh", "toggle"]
+
+[[actions]]
+id = "open"
+title = "Features: open sidebar"
+contexts = ["workspace", "pane"]
+command = ["bash", "herdr/pane.sh", "open"]
+
+[[actions]]
+id = "close"
+title = "Features: close sidebar"
+contexts = ["workspace", "pane"]
+command = ["bash", "herdr/pane.sh", "close"]
+
+[[actions]]
+id = "restamp"
+title = "Features: refresh sidebar group labels"
+description = "Re-report the $group token on every workspace."
+contexts = ["global", "workspace"]
+command = ["sh", "-c", "exec \"$HERDR_PLUGIN_ROOT/bin/herdr-wayfindr\" --report-tokens"]
+
+# Worktree events restamp the tokens and, when pane.auto_open is set, open the
+# split sidebar in the new workspace.
+[[events]]
+on = "worktree.created"
+command = ["bash", "herdr/pane.sh", "on-worktree"]
+
+[[events]]
+on = "worktree.opened"
+command = ["bash", "herdr/pane.sh", "on-worktree"]
+
+[[events]]
+on = "worktree.removed"
+command = ["sh", "-c", "exec \"$HERDR_PLUGIN_ROOT/bin/herdr-wayfindr\" --report-tokens"]
+
+# A workspace that is created, closed or renamed changes which groups exist.
+[[events]]
+on = "workspace.created"
+command = ["sh", "-c", "exec \"$HERDR_PLUGIN_ROOT/bin/herdr-wayfindr\" --report-tokens"]
+
+[[events]]
+on = "workspace.closed"
+command = ["sh", "-c", "exec \"$HERDR_PLUGIN_ROOT/bin/herdr-wayfindr\" --report-tokens"]
+
+[[events]]
+on = "workspace.renamed"
+command = ["sh", "-c", "exec \"$HERDR_PLUGIN_ROOT/bin/herdr-wayfindr\" --report-tokens"]

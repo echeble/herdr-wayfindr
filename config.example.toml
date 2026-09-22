@@ -1,0 +1,80 @@
+# Wayfindr settings.
+#
+# Copy to ~/.config/herdr/plugins/config/echeble.wayfindr/config.toml
+# (`herdr plugin config-dir echeble.wayfindr` prints the exact path).
+# Every value below is the default, so an empty file behaves the same way.
+
+[grouping]
+# Extracts a ticket key from anywhere in the branch name, and from the Herdr
+# workspace's name when the branch holds none — a worktree on master in a
+# workspace called crd-20764 still belongs to that feature. The first capture
+# group wins, or the whole match when the pattern has none. Finding the key
+# anywhere is what makes CRD-20748, worktree/CRD-20748 and
+# worktree-CRD-20748_fix one group instead of three.
+#
+# (?i) puts crd-20748 in the same group as CRD-20748; the name is upper-cased
+# once matched. The guards on both ends keep the key from starting or ending
+# mid-token, which is what stops a generated name like rapid-forest-349e from
+# reading as the ticket FOREST-349.
+jira_pattern = "(?i)(?:^|[^a-z0-9])([a-z][a-z0-9]+-[0-9]+)(?:[^a-z0-9]|$)"
+
+# Tried after jira_pattern. Each entry needs a capture named "group"; the first
+# pattern that produces a non-empty one names the group.
+# branch_patterns = ["^feature/(?P<group>[^/]+)/"]
+branch_patterns = []
+
+# Group checkouts whose directory name is shared by two or more different
+# repositories. A name used by only one repository never forms a group.
+use_worktree_name = true
+
+[pane]
+# How the pane draws what it found: list | cards.
+#   list  — every worktree under its feature, one per row, folding groups.
+#   cards — a grid of feature buttons; pressing one opens a grid of its
+#           worktrees, and pressing one of those opens the checkout.
+# This seeds a pane that has never been told otherwise. From the first press of
+# v, the pane remembers what you last chose and opens that way instead — this
+# value only applies until then. The same goes for the sort order behind s,
+# which has no setting here at all.
+view = "list"
+# split | tab | overlay | zoomed
+placement = "split"
+# Which edge of the workspace the sidebar sits against: left | right.
+# Herdr itself only splits right or down, so "left" is a right split followed
+# by a pane swap.
+direction = "left"
+# Columns the split sidebar resizes itself to. Herdr's plugin pane API takes a
+# width only for a popup, so a split moves its own divider to get there.
+# 0 leaves the split wherever Herdr put it. Accepted range is 20-120.
+width = 40
+# Open the split sidebar automatically in a workspace born from a new worktree.
+auto_open = false
+# Left click selects a row, a click on a group's ▾ folds it, and the wheel
+# scrolls. Set false to leave the mouse to the terminal — a pane that captures
+# it cannot be text-selected the ordinary way.
+mouse = true
+# Right click opens a small context menu for the row or card under the
+# pointer: open, tag, pin, fold, whichever apply. Its own switch, separate
+# from mouse above, because a right click is also how some terminals paste —
+# set false to leave it to the terminal without losing left click and the
+# wheel too.
+right_click = true
+# Keep one sidebar in the whole session: opening it in a workspace closes the
+# ones left behind in the others, so it follows you instead of accumulating.
+# An auto_open from a worktree event never sweeps — only an open you asked for.
+singleton = true
+
+[pr]
+# Ask GitHub whether each worktree's branch has a pull request, and label each
+# group open, merged or closed in GitHub's own colours — merged only once every
+# one of its worktrees is. Costs one `gh pr list` per branch on each refresh,
+# so it runs after the list is already on screen.
+# Needs gh on the system and logged in; a repository whose origin is not GitHub
+# is never asked about.
+enabled = true
+
+[tokens]
+# Publish each workspace's group to Herdr's own sidebar.
+enabled = true
+# The token key, rendered as $group in [ui.sidebar.spaces] rows.
+name = "group"
