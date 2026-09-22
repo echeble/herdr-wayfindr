@@ -1,0 +1,51 @@
+name: Tag on PR Merge
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    name: Create Merge Tag
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+      - name: Create tag on merged commit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGED_AT: ${{ github.event.pull_request.merged_at }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          if [ -z "$MERGED_AT" ] || [ -z "$MERGE_SHA" ]; then
+            echo "::error::Missing MERGED_AT or MERGE_SHA from PR payload"
+            exit 1
+          fi
+
+          # Format timestamp: YYYY-MM-DDTHH:MM:SSZ -> YYYYMMDDHHMMSS (14 digits)
+          TIMESTAMP=$(echo "$MERGED_AT" | tr -cd '0-9' | cut -c 1-14)
+          SHORT_SHA="${MERGE_SHA:0:7}"
+          TAG_NAME="${TIMESTAMP}-${SHORT_SHA}"
+
+          echo "Target tag: ${TAG_NAME}"
+          echo "Commit SHA: ${MERGE_SHA}"
+
+          # Check if tag already exists (idempotency check)
+          if gh api "repos/${{ github.repository }}/git/ref/tags/${TAG_NAME}" --silent >/dev/null 2>&1; then
+            echo "Tag ${TAG_NAME} already exists. Skipping creation."
+            exit 0
+          fi
+
+          # Create lightweight tag ref pointing to the merge commit SHA
+          gh api \
+            --method POST \
+            "repos/${{ github.repository }}/git/refs" \
+            -f ref="refs/tags/${TAG_NAME}" \
+            -f sha="${MERGE_SHA}"
+
+          echo "Successfully created tag ${TAG_NAME} for commit ${MERGE_SHA}"
