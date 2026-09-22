@@ -7,6 +7,7 @@ version (`herdr-plugin.toml`'s `version` field), newest first.
 
 ### Added
 
+- GitHub Actions CI workflow to automatically create git tags formatted as `YYYYMMDDHHMMSS-{{hash}}` when pull requests are merged into `master`.
 - GitHub Actions CI workflow to enforce Semantic Versioning and verify synchronization across `herdr-plugin.toml`, `README.md`, and `CHANGELOG.md` on pull requests.
 - Local verification script `.github/scripts/verify-semver.py` to check SemVer rules before pushing.
 
