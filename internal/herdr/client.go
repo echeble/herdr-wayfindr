@@ -169,6 +169,16 @@ func OpenWorktree(ctx context.Context, c Client, repoRoot, path string, focus bo
 	return res.Workspace, nil
 }
 
+// RemoveWorktree asks Herdr to remove a worktree checkout and its workspace.
+func RemoveWorktree(ctx context.Context, c Client, workspaceID string, force bool) error {
+	params := WorktreeRemoveParams{
+		WorkspaceID: workspaceID,
+		Force:       force,
+	}
+
+	return c.Call(ctx, MethodWorktreeRemove, params, nil)
+}
+
 // FocusWorkspace brings a workspace to the front.
 func FocusWorkspace(ctx context.Context, c Client, workspaceID string) error {
 	return c.Call(ctx, MethodWorkspaceFocus, WorkspaceFocusParams{WorkspaceID: workspaceID}, nil)

@@ -689,6 +689,14 @@ func (m Model) footer(width int) string {
 		return truncate("rename: "+m.input+"▏", width)
 	}
 
+	if m.mode == modeConfirmDelete {
+		prompt := errorStyle.Render(fmt.Sprintf("delete %s in %q?", plural(len(m.deleteTargets), "worktree"), m.deleteTargetGroup)) +
+			footerStyle.Render(" ") + keyStyle.Render("y") + footerStyle.Render("es · ") +
+			keyStyle.Render("n") + footerStyle.Render("o")
+
+		return truncate(prompt, width)
+	}
+
 	if m.errNote != "" {
 		return truncate(errorStyle.Render(m.errNote), width)
 	}

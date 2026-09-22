@@ -13,6 +13,7 @@ const (
 	MethodSessionSnapshot         = "session.snapshot"
 	MethodWorktreeList            = "worktree.list"
 	MethodWorktreeOpen            = "worktree.open"
+	MethodWorktreeRemove          = "worktree.remove"
 	MethodWorkspaceFocus          = "workspace.focus"
 	MethodWorkspaceReportMetadata = "workspace.report_metadata"
 )
@@ -128,6 +129,12 @@ type WorktreeOpenParams struct {
 	Cwd   string `json:"cwd"`
 	Path  string `json:"path"`
 	Focus bool   `json:"focus"`
+}
+
+type WorktreeRemoveParams struct {
+	WorkspaceID     string `json:"workspace_id"`
+	Force           bool   `json:"force,omitempty"`
+	TrustRepository bool   `json:"trust_repository,omitempty"`
 }
 
 type WorkspaceFocusParams struct {

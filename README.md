@@ -2,7 +2,7 @@
 
 ![Go](https://img.shields.io/badge/go-1.24%2B-00ADD8.svg)
 ![herdr 0.9.0+](https://img.shields.io/badge/herdr-0.9.0%2B-8a2be2)
-![wayfindr v0.17.0](https://img.shields.io/badge/wayfindr-v0.17.0-blue)
+![wayfindr v0.18.0](https://img.shields.io/badge/wayfindr-v0.18.0-blue)
 ![platforms: linux, macOS](https://img.shields.io/badge/platforms-linux%2C%20macOS-informational)
 
 **Group worktrees across every workspace, not just within one repository.** A [Herdr](https://herdr.dev)
