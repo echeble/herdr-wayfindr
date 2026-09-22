@@ -49,7 +49,7 @@ func TestBuildRowsGroupsAndOrders(t *testing.T) {
 	w := world(
 		wt("/w/b", "bnpl", "WAYF-2", "w2", herdr.StatusIdle),
 		wt("/w/a", "cds", "WAYF-1", "w1", herdr.StatusIdle),
-		wt("/w/z", "k8s", "master", "", herdr.StatusUnknown),
+		wt("/w/z", "k8s", "sandbox", "", herdr.StatusUnknown),
 	)
 
 	rows := buildRows(w, assign(map[string]group.Assignment{
@@ -76,7 +76,7 @@ func TestBuildRowsPutsUngroupedLast(t *testing.T) {
 	// Even when its name would sort first alphabetically.
 	w := world(
 		wt("/w/a", "cds", "ZZZ-1", "w1", herdr.StatusIdle),
-		wt("/w/z", "k8s", "master", "", herdr.StatusUnknown),
+		wt("/w/z", "k8s", "sandbox", "", herdr.StatusUnknown),
 	)
 
 	rows := buildRows(w, assign(map[string]group.Assignment{
@@ -87,6 +87,54 @@ func TestBuildRowsPutsUngroupedLast(t *testing.T) {
 	last := rows[len(rows)-1]
 	if last.kind != rowWorktree || last.worktree.Path != "/w/z" {
 		t.Fatalf("ungrouped members should be last, got %+v", last)
+	}
+}
+
+func TestBuildRowsExcludesPrincipalBranchFromUngrouped(t *testing.T) {
+	w := world(
+		wt("/w/a", "cds", "WAYF-1", "w1", herdr.StatusIdle),
+		wt("/w/m", "k8s", "master", "", herdr.StatusUnknown),
+		wt("/w/main", "bnpl", "main", "", herdr.StatusUnknown),
+	)
+
+	rows := buildRows(w, assign(map[string]group.Assignment{
+		"/w/a":    {Name: "WAYF-1", Source: group.SourceJira},
+		"/w/m":    {Source: group.SourceNone},
+		"/w/main": {Source: group.SourceNone},
+	}), map[string]bool{}, ordering{})
+
+	for _, r := range rows {
+		if r.name == ungroupedLabel {
+			t.Fatalf("Ungrouped group should not appear when all ungrouped worktrees are principal branches")
+		}
+		if r.kind == rowWorktree && (r.worktree.Branch == "master" || r.worktree.Branch == "main") {
+			t.Fatalf("principal branch worktree %s should not appear in rows when hiding is enabled", r.worktree.Branch)
+		}
+	}
+
+	// When hidePrincipal is false, principal branches should appear under Ungrouped
+	rowsShown := buildRows(w, assign(map[string]group.Assignment{
+		"/w/a":    {Name: "WAYF-1", Source: group.SourceJira},
+		"/w/m":    {Source: group.SourceNone},
+		"/w/main": {Source: group.SourceNone},
+	}), map[string]bool{}, ordering{}, false)
+
+	hasUngrouped := false
+	var ungroupedMembers []string
+	for _, r := range rowsShown {
+		if r.kind == rowGroup && r.name == ungroupedLabel {
+			hasUngrouped = true
+		}
+		if r.kind == rowWorktree && r.name == ungroupedLabel {
+			ungroupedMembers = append(ungroupedMembers, r.worktree.Branch)
+		}
+	}
+
+	if !hasUngrouped {
+		t.Fatal("Ungrouped group should appear when hidePrincipal is false")
+	}
+	if len(ungroupedMembers) != 2 {
+		t.Fatalf("Ungrouped members = %v, want master and main", ungroupedMembers)
 	}
 }
 

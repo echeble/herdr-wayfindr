@@ -107,10 +107,39 @@ func TestBranchKeyBeatsTheWorkspaceName(t *testing.T) {
 func TestWorkspaceNameLosesToAnExplicitTag(t *testing.T) {
 	r := NewResolver(defaultGrouping(), map[string]string{"/w/a": "bnpl-rollout"})
 
-	got := r.Resolve([]Input{{Path: "/w/a", Branch: "master", Workspace: "wayf-20764", RepoRoot: "/r/a"}})
+	got := r.Resolve([]Input{{Path: "/w/a", Branch: "", Workspace: "wayf-20764", RepoRoot: "/r/a"}})
 
 	if got["/w/a"].Source != SourceExplicit {
 		t.Fatalf("source = %v, want SourceExplicit", got["/w/a"].Source)
+	}
+}
+
+func TestPrincipalBranchCannotBeExplicitlyTagged(t *testing.T) {
+	r := NewResolver(defaultGrouping(), map[string]string{"/w/a": "bnpl-rollout"})
+
+	got := r.Resolve([]Input{{Path: "/w/a", Branch: "master", Workspace: "wayf-20764", RepoRoot: "/r/a"}})
+
+	// Master must not take the explicit tag; ticket in workspace takes over
+	if got["/w/a"].Source == SourceExplicit {
+		t.Fatalf("principal branch should not accept explicit tag")
+	}
+	if got["/w/a"].Name != "WAYF-20764" {
+		t.Fatalf("group = %q, want WAYF-20764", got["/w/a"].Name)
+	}
+}
+
+func TestPrincipalBranchCanBeExplicitlyTaggedWhenNotHidden(t *testing.T) {
+	cfg := defaultGrouping()
+	cfg.HidePrincipalBranches = false
+	r := NewResolver(cfg, map[string]string{"/w/a": "bnpl-rollout"})
+
+	got := r.Resolve([]Input{{Path: "/w/a", Branch: "master", Workspace: "wayf-20764", RepoRoot: "/r/a"}})
+
+	if got["/w/a"].Source != SourceExplicit {
+		t.Fatalf("source = %v, want SourceExplicit when HidePrincipalBranches is false", got["/w/a"].Source)
+	}
+	if got["/w/a"].Name != "bnpl-rollout" {
+		t.Fatalf("group = %q, want bnpl-rollout", got["/w/a"].Name)
 	}
 }
 
@@ -307,5 +336,21 @@ func TestWithLabelsNoOverridesAnswersTheSameMap(t *testing.T) {
 
 	if got["/w/a"].Name != "WAYF-1" {
 		t.Fatalf("assignment = %q, want it untouched", got["/w/a"].Name)
+	}
+}
+
+func TestPrincipalBranchNeverGroupedBySharedName(t *testing.T) {
+	r := NewResolver(defaultGrouping(), nil)
+
+	got := r.Resolve([]Input{
+		{Path: "/repos/srvc-a/master", Branch: "master", RepoRoot: "/repos/srvc-a"},
+		{Path: "/repos/srvc-b/master", Branch: "master", RepoRoot: "/repos/srvc-b"},
+	})
+
+	if got["/repos/srvc-a/master"].Source == SourceWorktreeName {
+		t.Fatal("shared worktree name rule should not group principal branches")
+	}
+	if got["/repos/srvc-b/master"].Source == SourceWorktreeName {
+		t.Fatal("shared worktree name rule should not group principal branches")
 	}
 }

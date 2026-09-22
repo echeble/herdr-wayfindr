@@ -171,3 +171,49 @@ func hardenedEnv() []string {
 
 	return append(out, "PATH="+path)
 }
+
+// repoDefaultBranch inspects a repository root to discover its default branch.
+// It checks symbolic refs for remote HEADs (e.g. refs/remotes/*/HEAD) and falls
+// back to git's init.defaultBranch.
+func repoDefaultBranch(ctx context.Context, repoRoot string) string {
+	if repoRoot == "" {
+		return ""
+	}
+
+	cmd := exec.CommandContext(ctx, "git",
+		"-C", repoRoot,
+		"--no-optional-locks",
+		"for-each-ref", "--format=%(symref:short)", "refs/remotes/*/HEAD",
+	)
+	cmd.Env = hardenedEnv()
+
+	if out, err := cmd.Output(); err == nil {
+		scanner := bufio.NewScanner(strings.NewReader(string(out)))
+		for scanner.Scan() {
+			line := strings.TrimSpace(scanner.Text())
+			if line == "" {
+				continue
+			}
+
+			// line is e.g. "origin/master" or "upstream/main"
+			if idx := strings.IndexByte(line, '/'); idx != -1 && idx+1 < len(line) {
+				return line[idx+1:]
+			}
+		}
+	}
+
+	cmdConfig := exec.CommandContext(ctx, "git",
+		"-C", repoRoot,
+		"--no-optional-locks",
+		"config", "--get", "init.defaultBranch",
+	)
+	cmdConfig.Env = hardenedEnv()
+
+	if out, err := cmdConfig.Output(); err == nil {
+		if branch := strings.TrimSpace(string(out)); branch != "" {
+			return branch
+		}
+	}
+
+	return ""
+}

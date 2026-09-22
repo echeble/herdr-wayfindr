@@ -133,6 +133,10 @@ func runList(cfg config.Config) error {
 	for _, wt := range world.Worktrees {
 		name := assignments[wt.Path].Name
 		if name == "" {
+			if cfg.Grouping.HidePrincipalBranches && wt.IsPrincipalBranch() {
+				continue
+			}
+
 			name = "Ungrouped"
 		}
 
@@ -210,7 +214,11 @@ func runPane(cfg config.Config) error {
 	// and sort, not the pane: the defaults still open something usable.
 	prefs, prefsErr := store.OpenPrefs(config.StateDir())
 
-	model := ui.New(client, collect.New(client).WithPR(cfg.PR.Enabled), tagStore, prefs, cfg)
+	collector := collect.New(client).
+		WithPR(cfg.PR.Enabled).
+		WithPrincipalBranches(cfg.Grouping.PrincipalBranches)
+
+	model := ui.New(client, collector, tagStore, prefs, cfg)
 
 	if storeErr != nil {
 		model = model.WithError(storeErr)
@@ -298,19 +306,25 @@ func runTag(cfg config.Config, workspaceID, name string) error {
 		return errors.New("no focused workspace")
 	}
 
-	var path string
+	var targetWt *collect.Worktree
 
-	for _, wt := range world.Worktrees {
-		if wt.WorkspaceID == workspaceID {
-			path = wt.Path
+	for i := range world.Worktrees {
+		if world.Worktrees[i].WorkspaceID == workspaceID {
+			targetWt = &world.Worktrees[i]
 
 			break
 		}
 	}
 
-	if path == "" {
+	if targetWt == nil {
 		return fmt.Errorf("workspace %s is not a git worktree", workspaceID)
 	}
+
+	if cfg.Grouping.HidePrincipalBranches && targetWt.IsPrincipalBranch() {
+		return fmt.Errorf("cannot tag workspace %s: %s is a principal branch", workspaceID, targetWt.Branch)
+	}
+
+	path := targetWt.Path
 
 	tagStore, err := store.Open(config.StateDir())
 	if err != nil {
@@ -367,7 +381,9 @@ func resolveWorld(ctx context.Context, client herdr.Client, cfg config.Config, f
 	// A missing or unreadable tag file costs the explicit tags, not the run.
 	tagStore, _ := store.Open(config.StateDir())
 
-	collector := collect.New(client).WithPR(full && cfg.PR.Enabled)
+	collector := collect.New(client).
+		WithPR(full && cfg.PR.Enabled).
+		WithPrincipalBranches(cfg.Grouping.PrincipalBranches)
 
 	world, err := collector.Collect(ctx, full)
 	if err != nil {
@@ -381,10 +397,11 @@ func resolveWorld(ctx context.Context, client herdr.Client, cfg config.Config, f
 	inputs := make([]group.Input, 0, len(world.Worktrees))
 	for _, wt := range world.Worktrees {
 		inputs = append(inputs, group.Input{
-			Path:      wt.Path,
-			Branch:    wt.Branch,
-			Workspace: wt.WorkspaceLabel,
-			RepoRoot:  wt.RepoRoot,
+			Path:        wt.Path,
+			Branch:      wt.Branch,
+			Workspace:   wt.WorkspaceLabel,
+			RepoRoot:    wt.RepoRoot,
+			IsPrincipal: wt.IsPrincipalBranch(),
 		})
 	}
 

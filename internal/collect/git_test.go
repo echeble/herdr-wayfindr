@@ -1,6 +1,8 @@
 package collect
 
 import (
+	"context"
+	"os/exec"
 	"testing"
 
 	"github.com/echeble/herdr-wayfindr/internal/herdr"
@@ -169,5 +171,53 @@ func TestAgentGroupSummaryPrefersBlocked(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestRepoDefaultBranch(t *testing.T) {
+	if got := repoDefaultBranch(context.Background(), ""); got != "" {
+		t.Errorf("empty repo root = %q, want empty", got)
+	}
+
+	dir := t.TempDir()
+	cmdInit := exec.Command("git", "init", "-b", "trunk", dir)
+	if err := cmdInit.Run(); err != nil {
+		t.Skipf("git init with -b not supported: %v", err)
+	}
+
+	got := repoDefaultBranch(context.Background(), dir)
+	// On init with trunk without remote, init.defaultBranch might not be in config
+	// but let's test configuring init.defaultBranch
+	cmdConfig := exec.Command("git", "-C", dir, "config", "init.defaultBranch", "main")
+	_ = cmdConfig.Run()
+
+	got = repoDefaultBranch(context.Background(), dir)
+	if got != "main" {
+		t.Errorf("default branch = %q, want main", got)
+	}
+}
+
+func TestWorktreeIsPrincipalBranch(t *testing.T) {
+	cases := []struct {
+		branch      string
+		isPrincipal bool
+		want        bool
+	}{
+		{"master", false, true},
+		{"main", false, true},
+		{"MASTER", false, true},
+		{"Main", false, true},
+		{"trunk", true, true},
+		{"trunk", false, false},
+		{"feature/abc", false, false},
+		{"", false, false},
+	}
+
+	for _, tc := range cases {
+		wt := Worktree{Branch: tc.branch, IsPrincipal: tc.isPrincipal}
+		if got := wt.IsPrincipalBranch(); got != tc.want {
+			t.Errorf("Worktree(branch=%q, isPrincipal=%v).IsPrincipalBranch() = %v, want %v",
+				tc.branch, tc.isPrincipal, got, tc.want)
+		}
 	}
 }
