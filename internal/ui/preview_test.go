@@ -31,18 +31,18 @@ func TestPreview(t *testing.T) {
 	}
 
 	w := world(
-		seq(pr(dirty(crew(wt("/w/a", "credit-decision-srvc", "CRD-20748", "w1", herdr.StatusWorking), herdr.StatusWorking), 1, 2, 3), collect.PROpen), 40),
-		seq(pr(wt("/w/b", "ca-bnpl-decision-engine", "worktree-CRD-20748", "w2", herdr.StatusBlocked), collect.PRMerged), 10),
-		pr(wt("/w/c", "k8s-template", "CRD-20748", "", herdr.StatusUnknown), collect.PRNone),
-		seq(pr(wt("/w/d", "credit-report-srvc", "CRD-20099", "w4", herdr.StatusDone), collect.PRMerged), 90),
+		seq(pr(dirty(crew(wt("/w/a", "marketplace-billing-service", "WAYF-20748", "w1", herdr.StatusWorking), herdr.StatusWorking), 1, 2, 3), collect.PROpen), 40),
+		seq(pr(wt("/w/b", "marketplace-catalog-service", "worktree-WAYF-20748", "w2", herdr.StatusBlocked), collect.PRMerged), 10),
+		pr(wt("/w/c", "k8s-template", "WAYF-20748", "", herdr.StatusUnknown), collect.PRNone),
+		seq(pr(wt("/w/d", "credit-report-srvc", "WAYF-20099", "w4", herdr.StatusDone), collect.PRMerged), 90),
 		seq(wt("/w/e", "wayfindr", "0.8.0", "w5", herdr.StatusIdle), 70),
 	)
 
 	assignments := assign(map[string]group.Assignment{
-		"/w/a": {Name: "CRD-20748", Source: group.SourceJira},
-		"/w/b": {Name: "CRD-20748", Source: group.SourceJira},
-		"/w/c": {Name: "CRD-20748", Source: group.SourceJira},
-		"/w/d": {Name: "CRD-20099", Source: group.SourceJira},
+		"/w/a": {Name: "WAYF-20748", Source: group.SourceJira},
+		"/w/b": {Name: "WAYF-20748", Source: group.SourceJira},
+		"/w/c": {Name: "WAYF-20748", Source: group.SourceJira},
+		"/w/d": {Name: "WAYF-20099", Source: group.SourceJira},
 		"/w/e": {Source: group.SourceNone},
 	})
 
@@ -53,7 +53,7 @@ func TestPreview(t *testing.T) {
 		fmt.Printf("\n=== cards, %d columns ===\n%s\n", width, m.View())
 
 		inside := press(press(m, "right"), "enter")
-		fmt.Printf("\n=== inside CRD-20748, %d columns ===\n%s\n", width, inside.View())
+		fmt.Printf("\n=== inside WAYF-20748, %d columns ===\n%s\n", width, inside.View())
 	}
 
 	list := cardsOver(w, assignments, 40, 24)

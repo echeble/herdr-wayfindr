@@ -13,19 +13,19 @@ import (
 	"github.com/echeble/herdr-wayfindr/internal/herdr"
 )
 
-// cardModel holds two features: CRD-1 with two worktrees, one of them closed,
-// and CRD-2 with one.
+// cardModel holds two features: WAYF-1 with two worktrees, one of them closed,
+// and WAYF-2 with one.
 func cardModel(width, height int) Model {
 	w := world(
-		wt("/w/a", "cds", "CRD-1", "w1", herdr.StatusIdle),
-		wt("/w/b", "bnpl", "CRD-1", "", herdr.StatusUnknown),
-		wt("/w/c", "k8s", "CRD-2", "w3", herdr.StatusBlocked),
+		wt("/w/a", "cds", "WAYF-1", "w1", herdr.StatusIdle),
+		wt("/w/b", "bnpl", "WAYF-1", "", herdr.StatusUnknown),
+		wt("/w/c", "k8s", "WAYF-2", "w3", herdr.StatusBlocked),
 	)
 
 	return cardsOver(w, assign(map[string]group.Assignment{
-		"/w/a": {Name: "CRD-1", Source: group.SourceJira},
-		"/w/b": {Name: "CRD-1", Source: group.SourceJira},
-		"/w/c": {Name: "CRD-2", Source: group.SourceJira},
+		"/w/a": {Name: "WAYF-1", Source: group.SourceJira},
+		"/w/b": {Name: "WAYF-1", Source: group.SourceJira},
+		"/w/c": {Name: "WAYF-2", Source: group.SourceJira},
 	}), width, height)
 }
 
@@ -37,7 +37,7 @@ func gridModel(features, width, height int) Model {
 	assignments := map[string]group.Assignment{}
 
 	for i := range features {
-		name := fmt.Sprintf("CRD-%02d", i)
+		name := fmt.Sprintf("WAYF-%02d", i)
 		path := "/w/" + name
 
 		worktrees = append(worktrees, wt(path, "repo-"+name, name, "ws-"+name, herdr.StatusIdle))
@@ -240,15 +240,15 @@ func TestFeatureCardsAreOnePerFeature(t *testing.T) {
 		t.Fatalf("cards = %d, want 2", len(m.cards))
 	}
 
-	if m.cards[0].name != "CRD-1" || m.cards[0].members != 2 || m.cards[0].openCount != 1 {
-		t.Fatalf("first card = %+v, want CRD-1 with 2 members and 1 open", m.cards[0])
+	if m.cards[0].name != "WAYF-1" || m.cards[0].members != 2 || m.cards[0].openCount != 1 {
+		t.Fatalf("first card = %+v, want WAYF-1 with 2 members and 1 open", m.cards[0])
 	}
 }
 
 func TestWorktreeCardsAreTheFeaturesMembers(t *testing.T) {
 	m := cardModel(40, 30)
 
-	cards := worktreeCards(m.world, m.assignments, "CRD-1", ordering{})
+	cards := worktreeCards(m.world, m.assignments, "WAYF-1", ordering{})
 	if len(cards) != 2 {
 		t.Fatalf("cards = %d, want 2", len(cards))
 	}
@@ -267,8 +267,8 @@ func TestWorktreeCardsAreTheFeaturesMembers(t *testing.T) {
 func TestEnterOnAFeatureCardOpensItsWorktrees(t *testing.T) {
 	m := press(cardModel(40, 30), "enter")
 
-	if m.feature != "CRD-1" {
-		t.Fatalf("feature = %q, want CRD-1", m.feature)
+	if m.feature != "WAYF-1" {
+		t.Fatalf("feature = %q, want WAYF-1", m.feature)
 	}
 
 	if len(m.cards) != 2 || m.cards[0].kind != rowWorktree {
@@ -281,8 +281,8 @@ func TestEscComesBackToTheFeatureYouWereIn(t *testing.T) {
 	m.cardCursor = 1
 
 	inside := press(m, "enter")
-	if inside.feature != "CRD-2" {
-		t.Fatalf("feature = %q, want CRD-2", inside.feature)
+	if inside.feature != "WAYF-2" {
+		t.Fatalf("feature = %q, want WAYF-2", inside.feature)
 	}
 
 	back := press(inside, "esc")
@@ -319,8 +319,8 @@ func TestFirstClickOnACardOnlySelectsIt(t *testing.T) {
 func TestSecondClickOnTheSelectedCardOpensIt(t *testing.T) {
 	m := click(click(cardModel(40, 30), 5, 2), 5, 2)
 
-	if m.feature != "CRD-1" {
-		t.Fatalf("feature = %q, want CRD-1 opened by the second click", m.feature)
+	if m.feature != "WAYF-1" {
+		t.Fatalf("feature = %q, want WAYF-1 opened by the second click", m.feature)
 	}
 }
 
@@ -495,15 +495,15 @@ func TestRefreshingAwayTheOpenFeatureFallsBackToTheGrid(t *testing.T) {
 	m := press(cardModel(40, 30), "enter")
 
 	// The feature's worktrees are gone — removed, or regrouped by a refresh.
-	m.world = world(wt("/w/c", "k8s", "CRD-2", "w3", herdr.StatusBlocked))
-	m.assignments = assign(map[string]group.Assignment{"/w/c": {Name: "CRD-2", Source: group.SourceJira}})
+	m.world = world(wt("/w/c", "k8s", "WAYF-2", "w3", herdr.StatusBlocked))
+	m.assignments = assign(map[string]group.Assignment{"/w/c": {Name: "WAYF-2", Source: group.SourceJira}})
 	m.rebuildCards()
 
 	if m.feature != "" {
 		t.Fatalf("feature = %q, want the grid: its worktrees are gone", m.feature)
 	}
 
-	if len(m.cards) != 1 || m.cards[0].name != "CRD-2" {
+	if len(m.cards) != 1 || m.cards[0].name != "WAYF-2" {
 		t.Fatalf("cards = %+v, want the one remaining feature", m.cards)
 	}
 }
@@ -535,7 +535,7 @@ func TestToggleViewKeepsEachCursor(t *testing.T) {
 func TestIdleCardFramesAreDimmed(t *testing.T) {
 	// The selected card has to win the pane at a glance, and it cannot do that
 	// against eleven other coloured frames.
-	feature := row{kind: rowGroup, name: "CRD-1"}
+	feature := row{kind: rowGroup, name: "WAYF-1"}
 
 	idle := cardFrame(feature, false).GetBorderTopForeground()
 	if idle != lipgloss.TerminalColor(idleFrameColour) {
@@ -547,14 +547,14 @@ func TestIdleCardFramesAreDimmed(t *testing.T) {
 	}
 
 	// And the feature's own colour is still on the card, in its title.
-	if !strings.Contains(strings.Join(featureCardLines(feature, 15, 5), ""), "CRD-1") {
+	if !strings.Contains(strings.Join(featureCardLines(feature, 15, 5), ""), "WAYF-1") {
 		t.Error("the card title should still name the feature")
 	}
 }
 
 func TestIdleCardFramesAreDimmedForEveryFeature(t *testing.T) {
 	// Including the ungrouped bucket, which has no colour of its own to dim.
-	for _, name := range []string{"CRD-1", "CRD-2", "release", ungroupedLabel} {
+	for _, name := range []string{"WAYF-1", "WAYF-2", "release", ungroupedLabel} {
 		r := row{kind: rowGroup, name: name}
 
 		if got := cardFrame(r, false).GetBorderTopForeground(); got != lipgloss.TerminalColor(idleFrameColour) {
@@ -566,7 +566,7 @@ func TestIdleCardFramesAreDimmedForEveryFeature(t *testing.T) {
 func TestSelectedCardKeepsTheThickerFrame(t *testing.T) {
 	// The weight carries the selection as well as the colour, so it still reads
 	// where a terminal has no colour at all.
-	r := row{kind: rowGroup, name: "CRD-1"}
+	r := row{kind: rowGroup, name: "WAYF-1"}
 
 	if cardFrame(r, true).GetBorderStyle().Top == cardFrame(r, false).GetBorderStyle().Top {
 		t.Fatal("the selected card should keep its heavier border")
@@ -576,11 +576,11 @@ func TestSelectedCardKeepsTheThickerFrame(t *testing.T) {
 func TestSelectedCardFillsWithItsOwnColour(t *testing.T) {
 	// A selected card is a solid block of its feature's colour, not just a
 	// coloured outline around an otherwise plain one.
-	r := row{kind: rowGroup, name: "CRD-1"}
+	r := row{kind: rowGroup, name: "WAYF-1"}
 	style := cardFrame(r, true)
 
-	if bg := style.GetBackground(); bg != lipgloss.TerminalColor(groupColor("CRD-1")) {
-		t.Errorf("selected background = %v, want the feature's own colour %v", bg, groupColor("CRD-1"))
+	if bg := style.GetBackground(); bg != lipgloss.TerminalColor(groupColor("WAYF-1")) {
+		t.Errorf("selected background = %v, want the feature's own colour %v", bg, groupColor("WAYF-1"))
 	}
 
 	if border := style.GetBorderTopForeground(); border != style.GetBackground() {
@@ -597,7 +597,7 @@ func TestSelectedCardTextIsBlackOnEveryColour(t *testing.T) {
 	// The text is stripped of its own colour before this style ever sees it —
 	// see renderCard — so a single readable foreground has to carry every
 	// feature's card, not just some of them.
-	for _, name := range []string{"CRD-1", "CRD-2", "release", ungroupedLabel} {
+	for _, name := range []string{"WAYF-1", "WAYF-2", "release", ungroupedLabel} {
 		r := row{kind: rowGroup, name: name}
 
 		if fg := cardFrame(r, true).GetForeground(); fg != lipgloss.Color("0") {
@@ -624,11 +624,11 @@ func TestRenderCardKeepsTheTextReadableEitherWay(t *testing.T) {
 	// to survive that round trip exactly, whichever card is selected.
 	m := cardModel(40, 30)
 
-	if out := m.renderCard(m.cards[0], true, 20, 8); !strings.Contains(out, "CRD-1") {
+	if out := m.renderCard(m.cards[0], true, 20, 8); !strings.Contains(out, "WAYF-1") {
 		t.Errorf("selected card lost its own name, got:\n%s", out)
 	}
 
-	if out := m.renderCard(m.cards[1], false, 20, 8); !strings.Contains(out, "CRD-2") {
+	if out := m.renderCard(m.cards[1], false, 20, 8); !strings.Contains(out, "WAYF-2") {
 		t.Errorf("idle card lost its own name, got:\n%s", out)
 	}
 }
@@ -681,7 +681,7 @@ func TestCardBlockGivesUpDetailsBeforeTheFooter(t *testing.T) {
 func TestCardViewDrawsEveryFeature(t *testing.T) {
 	out := cardModel(40, 30).View()
 
-	for _, want := range []string{"CRD-1", "CRD-2", "2 worktrees", "1 open"} {
+	for _, want := range []string{"WAYF-1", "WAYF-2", "2 worktrees", "1 open"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("expected %q in:\n%s", want, out)
 		}
@@ -691,7 +691,7 @@ func TestCardViewDrawsEveryFeature(t *testing.T) {
 func TestCardViewShowsTheBreadcrumbInsideAFeature(t *testing.T) {
 	out := press(cardModel(40, 30), "enter").View()
 
-	if !strings.Contains(out, "‹") || !strings.Contains(out, "CRD-1") {
+	if !strings.Contains(out, "‹") || !strings.Contains(out, "WAYF-1") {
 		t.Errorf("expected a breadcrumb back to the grid in:\n%s", out)
 	}
 

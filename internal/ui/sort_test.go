@@ -136,15 +136,15 @@ func TestSortModesOrderTheWorktreesInsideAFeature(t *testing.T) {
 	}
 
 	w := world(
-		seq(wt("/w/a", "aaa", "CRD-1", "w1", herdr.StatusIdle), 10),
-		seq(wt("/w/b", "bbb", "CRD-1", "w2", herdr.StatusBlocked), 20),
-		seq(wt("/w/c", "ccc", "CRD-1", "w3", herdr.StatusWorking), 90),
+		seq(wt("/w/a", "aaa", "WAYF-1", "w1", herdr.StatusIdle), 10),
+		seq(wt("/w/b", "bbb", "WAYF-1", "w2", herdr.StatusBlocked), 20),
+		seq(wt("/w/c", "ccc", "WAYF-1", "w3", herdr.StatusWorking), 90),
 	)
 
 	assignments := assign(map[string]group.Assignment{
-		"/w/a": {Name: "CRD-1", Source: group.SourceJira},
-		"/w/b": {Name: "CRD-1", Source: group.SourceJira},
-		"/w/c": {Name: "CRD-1", Source: group.SourceJira},
+		"/w/a": {Name: "WAYF-1", Source: group.SourceJira},
+		"/w/b": {Name: "WAYF-1", Source: group.SourceJira},
+		"/w/c": {Name: "WAYF-1", Source: group.SourceJira},
 	})
 
 	members := func(order ordering) []string {

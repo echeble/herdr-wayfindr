@@ -16,19 +16,19 @@ func TestResolveTicketKeyFromBranch(t *testing.T) {
 		branch string
 		want   string
 	}{
-		{"bare key", "CRD-20748", "CRD-20748"},
+		{"bare key", "WAYF-20748", "WAYF-20748"},
 		{"key with suffix", "DECIS-1234-signum-guard", "DECIS-1234"},
-		{"underscore suffix", "CRD-20616_fix_rule_133", "CRD-20616"},
+		{"underscore suffix", "WAYF-20616_fix_rule_133", "WAYF-20616"},
 		// The case a ticket was typed in is an accident of how the worktree was
 		// made, so it is matched either way and upper-cased into one group.
-		{"lowercase key", "crd-20748", "CRD-20748"},
-		{"mixed case key", "Crd-20748", "CRD-20748"},
-		{"lowercase key mid-branch", "whatever-fix-no-crd-20226", "CRD-20226"},
+		{"lowercase key", "wayf-20748", "WAYF-20748"},
+		{"mixed case key", "Wayf-20748", "WAYF-20748"},
+		{"lowercase key mid-branch", "whatever-fix-no-wayf-20226", "WAYF-20226"},
 		// The prefixed forms matter most: the same ticket is spelled three
 		// ways across these repos and all three have to land in one group.
-		{"slash prefix", "worktree/CRD-20099", "CRD-20099"},
-		{"dash prefix", "worktree-CRD-20226_remove_fields", "CRD-20226"},
-		{"no number is not a key", "CRD-extract-sim-files", ""},
+		{"slash prefix", "worktree/WAYF-20099", "WAYF-20099"},
+		{"dash prefix", "worktree-WAYF-20226_remove_fields", "WAYF-20226"},
+		{"no number is not a key", "WAYF-extract-sim-files", ""},
 		// Herdr's own generated names are the reason the key has a guard at
 		// both ends: matched case-insensitively and without one, forest-349
 		// inside rapid-forest-349e would read as a ticket.
@@ -63,9 +63,9 @@ func TestResolveTicketKeyFromWorkspaceName(t *testing.T) {
 	}{
 		// The point of the rule: the checkout is on master or detached, and
 		// the only place the ticket is written down is the workspace.
-		{"master in a ticket workspace", "master", "crd-20764", "CRD-20764"},
-		{"detached in a ticket workspace", "", "CRD-20764", "CRD-20764"},
-		{"suffixed workspace name", "master", "crd-20226_remove_fields", "CRD-20226"},
+		{"master in a ticket workspace", "master", "wayf-20764", "WAYF-20764"},
+		{"detached in a ticket workspace", "", "WAYF-20764", "WAYF-20764"},
+		{"suffixed workspace name", "master", "wayf-20226_remove_fields", "WAYF-20226"},
 		{"no key anywhere", "master", "wayfindr", ""},
 		{"no workspace open", "master", "", ""},
 	}
@@ -94,20 +94,20 @@ func TestBranchKeyBeatsTheWorkspaceName(t *testing.T) {
 
 	got := r.Resolve([]Input{{
 		Path:      "/w/a",
-		Branch:    "CRD-20748",
-		Workspace: "crd-20764",
+		Branch:    "WAYF-20748",
+		Workspace: "wayf-20764",
 		RepoRoot:  "/r/a",
 	}})
 
-	if got["/w/a"].Name != "CRD-20748" {
-		t.Fatalf("group = %q, want CRD-20748: the branch names the feature", got["/w/a"].Name)
+	if got["/w/a"].Name != "WAYF-20748" {
+		t.Fatalf("group = %q, want WAYF-20748: the branch names the feature", got["/w/a"].Name)
 	}
 }
 
 func TestWorkspaceNameLosesToAnExplicitTag(t *testing.T) {
 	r := NewResolver(defaultGrouping(), map[string]string{"/w/a": "bnpl-rollout"})
 
-	got := r.Resolve([]Input{{Path: "/w/a", Branch: "master", Workspace: "crd-20764", RepoRoot: "/r/a"}})
+	got := r.Resolve([]Input{{Path: "/w/a", Branch: "master", Workspace: "wayf-20764", RepoRoot: "/r/a"}})
 
 	if got["/w/a"].Source != SourceExplicit {
 		t.Fatalf("source = %v, want SourceExplicit", got["/w/a"].Source)
@@ -118,35 +118,35 @@ func TestResolveGroupsAcrossRepositories(t *testing.T) {
 	r := NewResolver(defaultGrouping(), nil)
 
 	got := r.Resolve([]Input{
-		{Path: "/w/cds/crd-20748", Branch: "CRD-20748", RepoRoot: "/r/credit-decision-srvc"},
-		{Path: "/w/bnpl/crd-20748", Branch: "CRD-20748-engine", RepoRoot: "/r/bnpl-decision-engine"},
-		{Path: "/w/qa/crd-20748", Branch: "worktree/CRD-20748", RepoRoot: "/r/qa-automation"},
-		{Path: "/w/k8s/other", Branch: "CRD-19000", RepoRoot: "/r/k8s-template"},
+		{Path: "/w/cds/wayf-20748", Branch: "WAYF-20748", RepoRoot: "/r/marketplace-billing-service"},
+		{Path: "/w/bnpl/wayf-20748", Branch: "WAYF-20748-engine", RepoRoot: "/r/bnpl-decision-engine"},
+		{Path: "/w/qa/wayf-20748", Branch: "worktree/WAYF-20748", RepoRoot: "/r/qa-automation"},
+		{Path: "/w/k8s/other", Branch: "WAYF-19000", RepoRoot: "/r/k8s-template"},
 	})
 
-	for _, path := range []string{"/w/cds/crd-20748", "/w/bnpl/crd-20748", "/w/qa/crd-20748"} {
-		if got[path].Name != "CRD-20748" {
-			t.Fatalf("%s did not land in CRD-20748: %+v", path, got[path])
+	for _, path := range []string{"/w/cds/wayf-20748", "/w/bnpl/wayf-20748", "/w/qa/wayf-20748"} {
+		if got[path].Name != "WAYF-20748" {
+			t.Fatalf("%s did not land in WAYF-20748: %+v", path, got[path])
 		}
 	}
 
-	if got["/w/k8s/other"].Name != "CRD-19000" {
+	if got["/w/k8s/other"].Name != "WAYF-19000" {
 		t.Fatalf("unrelated ticket was folded in: %+v", got["/w/k8s/other"])
 	}
 }
 
 func TestResolveExplicitTagWinsOverDerivation(t *testing.T) {
-	explicit := map[string]string{"/w/cds/crd-20748": "bnpl-rollout"}
+	explicit := map[string]string{"/w/cds/wayf-20748": "bnpl-rollout"}
 	r := NewResolver(defaultGrouping(), explicit)
 
-	got := r.Resolve([]Input{{Path: "/w/cds/crd-20748", Branch: "CRD-20748", RepoRoot: "/r/cds"}})
+	got := r.Resolve([]Input{{Path: "/w/cds/wayf-20748", Branch: "WAYF-20748", RepoRoot: "/r/cds"}})
 
-	if got["/w/cds/crd-20748"].Name != "bnpl-rollout" {
-		t.Fatalf("explicit tag lost to the ticket key: %+v", got["/w/cds/crd-20748"])
+	if got["/w/cds/wayf-20748"].Name != "bnpl-rollout" {
+		t.Fatalf("explicit tag lost to the ticket key: %+v", got["/w/cds/wayf-20748"])
 	}
 
-	if got["/w/cds/crd-20748"].Source != SourceExplicit {
-		t.Fatalf("source = %v, want SourceExplicit", got["/w/cds/crd-20748"].Source)
+	if got["/w/cds/wayf-20748"].Source != SourceExplicit {
+		t.Fatalf("source = %v, want SourceExplicit", got["/w/cds/wayf-20748"].Source)
 	}
 }
 
@@ -155,7 +155,7 @@ func TestResolveBlankExplicitTagIsIgnored(t *testing.T) {
 	// worktree to a nameless group.
 	r := NewResolver(defaultGrouping(), map[string]string{"/w/a": "   "})
 
-	got := r.Resolve([]Input{{Path: "/w/a", Branch: "CRD-1", RepoRoot: "/r/a"}})
+	got := r.Resolve([]Input{{Path: "/w/a", Branch: "WAYF-1", RepoRoot: "/r/a"}})
 
 	if got["/w/a"].Source != SourceJira {
 		t.Fatalf("blank tag was honoured: %+v", got["/w/a"])
@@ -170,7 +170,7 @@ func TestResolveBranchPatternAfterTicketKey(t *testing.T) {
 
 	got := r.Resolve([]Input{
 		{Path: "/w/a", Branch: "feature/checkout-v2/api", RepoRoot: "/r/a"},
-		{Path: "/w/b", Branch: "CRD-42", RepoRoot: "/r/b"},
+		{Path: "/w/b", Branch: "WAYF-42", RepoRoot: "/r/b"},
 	})
 
 	if got["/w/a"].Name != "checkout-v2" || got["/w/a"].Source != SourceBranchPattern {
@@ -254,7 +254,7 @@ func TestResolveAssignsEveryInput(t *testing.T) {
 	r := NewResolver(defaultGrouping(), nil)
 
 	inputs := []Input{
-		{Path: "/w/a", Branch: "CRD-1", RepoRoot: "/r/a"},
+		{Path: "/w/a", Branch: "WAYF-1", RepoRoot: "/r/a"},
 		{Path: "/w/b", Branch: "", RepoRoot: "/r/b"},
 		{Path: "/w/c", Branch: "junk", RepoRoot: "/r/c"},
 	}
@@ -272,20 +272,20 @@ func TestResolvePatternWithoutCaptureUsesWholeMatch(t *testing.T) {
 
 	r := NewResolver(cfg, nil)
 
-	got := r.Resolve([]Input{{Path: "/w/a", Branch: "CRD-20748-thing", RepoRoot: "/r/a"}})
+	got := r.Resolve([]Input{{Path: "/w/a", Branch: "WAYF-20748-thing", RepoRoot: "/r/a"}})
 
-	if got["/w/a"].Name != "CRD-20748" {
+	if got["/w/a"].Name != "WAYF-20748" {
 		t.Fatalf("whole-match fallback failed: %q", got["/w/a"].Name)
 	}
 }
 
 func TestWithLabelsRenamesOnlyWhatHasAnOverride(t *testing.T) {
 	assignments := map[string]Assignment{
-		"/w/a": {Name: "CRD-1", Source: SourceJira},
-		"/w/b": {Name: "CRD-2", Source: SourceJira},
+		"/w/a": {Name: "WAYF-1", Source: SourceJira},
+		"/w/b": {Name: "WAYF-2", Source: SourceJira},
 	}
 
-	got := WithLabels(assignments, map[string]string{"CRD-1": "Checkout redesign"})
+	got := WithLabels(assignments, map[string]string{"WAYF-1": "Checkout redesign"})
 
 	if got["/w/a"].Name != "Checkout redesign" {
 		t.Fatalf("renamed assignment = %q, want the override", got["/w/a"].Name)
@@ -295,17 +295,17 @@ func TestWithLabelsRenamesOnlyWhatHasAnOverride(t *testing.T) {
 		t.Fatalf("renaming should not touch Source, got %v", got["/w/a"].Source)
 	}
 
-	if got["/w/b"].Name != "CRD-2" {
+	if got["/w/b"].Name != "WAYF-2" {
 		t.Fatalf("an assignment with no override should be unchanged, got %q", got["/w/b"].Name)
 	}
 }
 
 func TestWithLabelsNoOverridesAnswersTheSameMap(t *testing.T) {
-	assignments := map[string]Assignment{"/w/a": {Name: "CRD-1", Source: SourceJira}}
+	assignments := map[string]Assignment{"/w/a": {Name: "WAYF-1", Source: SourceJira}}
 
 	got := WithLabels(assignments, nil)
 
-	if got["/w/a"].Name != "CRD-1" {
+	if got["/w/a"].Name != "WAYF-1" {
 		t.Fatalf("assignment = %q, want it untouched", got["/w/a"].Name)
 	}
 }

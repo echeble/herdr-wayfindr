@@ -14,7 +14,7 @@ func TestSetAndReload(t *testing.T) {
 		t.Fatalf("open: %v", err)
 	}
 
-	if err := s.Set("/w/a", "CRD-1"); err != nil {
+	if err := s.Set("/w/a", "WAYF-1"); err != nil {
 		t.Fatalf("set: %v", err)
 	}
 
@@ -23,7 +23,7 @@ func TestSetAndReload(t *testing.T) {
 		t.Fatalf("reopen: %v", err)
 	}
 
-	if got := reopened.Tags()["/w/a"]; got != "CRD-1" {
+	if got := reopened.Tags()["/w/a"]; got != "WAYF-1" {
 		t.Fatalf("tag did not survive a reopen: %q", got)
 	}
 }
@@ -33,7 +33,7 @@ func TestSetEmptyClearsTheTag(t *testing.T) {
 	// treats a blank tag as "fall through to derivation".
 	s, _ := Open(t.TempDir())
 
-	if err := s.Set("/w/a", "CRD-1"); err != nil {
+	if err := s.Set("/w/a", "WAYF-1"); err != nil {
 		t.Fatalf("set: %v", err)
 	}
 
@@ -49,12 +49,12 @@ func TestSetEmptyClearsTheTag(t *testing.T) {
 func TestTagsReturnsACopy(t *testing.T) {
 	// The resolver runs on another goroutine with this map.
 	s, _ := Open(t.TempDir())
-	_ = s.Set("/w/a", "CRD-1")
+	_ = s.Set("/w/a", "WAYF-1")
 
 	tags := s.Tags()
 	tags["/w/a"] = "mutated"
 
-	if s.Tags()["/w/a"] != "CRD-1" {
+	if s.Tags()["/w/a"] != "WAYF-1" {
 		t.Fatal("Tags handed out the live map")
 	}
 }
@@ -87,7 +87,7 @@ func TestCorruptFileStillYieldsAUsableStore(t *testing.T) {
 		t.Fatal("store should not be nil")
 	}
 
-	if err := s.Set("/w/a", "CRD-1"); err != nil {
+	if err := s.Set("/w/a", "WAYF-1"); err != nil {
 		t.Fatalf("store should still be writable: %v", err)
 	}
 }
@@ -101,10 +101,10 @@ func TestPruneDropsOnlyVanishedPaths(t *testing.T) {
 	}
 
 	s, _ := Open(dir)
-	_ = s.Set(live, "CRD-1")
-	_ = s.Set("/w/gone", "CRD-2")
+	_ = s.Set(live, "WAYF-1")
+	_ = s.Set("/w/gone", "WAYF-2")
 	// On disk but not open in Herdr: it must keep its tag.
-	_ = s.Set(dir, "CRD-3")
+	_ = s.Set(dir, "WAYF-3")
 
 	dropped, err := s.Prune(map[string]bool{})
 	if err != nil {
@@ -120,18 +120,18 @@ func TestPruneDropsOnlyVanishedPaths(t *testing.T) {
 		t.Error("a path that is gone from disk should have been pruned")
 	}
 
-	if tags[live] != "CRD-1" {
+	if tags[live] != "WAYF-1" {
 		t.Error("a path still on disk should have kept its tag")
 	}
 
-	if tags[dir] != "CRD-3" {
+	if tags[dir] != "WAYF-3" {
 		t.Error("a checkout not open in Herdr should have kept its tag")
 	}
 }
 
 func TestPruneKeepsPathsHerdrStillReports(t *testing.T) {
 	s, _ := Open(t.TempDir())
-	_ = s.Set("/w/reported", "CRD-1")
+	_ = s.Set("/w/reported", "WAYF-1")
 
 	dropped, err := s.Prune(map[string]bool{"/w/reported": true})
 	if err != nil {
@@ -159,8 +159,8 @@ func TestSaveLeavesNoTempFiles(t *testing.T) {
 	dir := t.TempDir()
 
 	s, _ := Open(dir)
-	_ = s.Set("/w/a", "CRD-1")
-	_ = s.Set("/w/b", "CRD-2")
+	_ = s.Set("/w/a", "WAYF-1")
+	_ = s.Set("/w/b", "WAYF-2")
 
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -185,7 +185,7 @@ func TestSetLabelAndReload(t *testing.T) {
 		t.Fatalf("open: %v", err)
 	}
 
-	if err := s.SetLabel("CRD-1", "Checkout redesign"); err != nil {
+	if err := s.SetLabel("WAYF-1", "Checkout redesign"); err != nil {
 		t.Fatalf("set label: %v", err)
 	}
 
@@ -194,7 +194,7 @@ func TestSetLabelAndReload(t *testing.T) {
 		t.Fatalf("reopen: %v", err)
 	}
 
-	if got := reopened.Labels()["CRD-1"]; got != "Checkout redesign" {
+	if got := reopened.Labels()["WAYF-1"]; got != "Checkout redesign" {
 		t.Fatalf("label did not survive a reopen: %q", got)
 	}
 }
@@ -202,15 +202,15 @@ func TestSetLabelAndReload(t *testing.T) {
 func TestSetLabelEmptyClearsTheRename(t *testing.T) {
 	s, _ := Open(t.TempDir())
 
-	if err := s.SetLabel("CRD-1", "Checkout redesign"); err != nil {
+	if err := s.SetLabel("WAYF-1", "Checkout redesign"); err != nil {
 		t.Fatalf("set label: %v", err)
 	}
 
-	if err := s.SetLabel("CRD-1", "   "); err != nil {
+	if err := s.SetLabel("WAYF-1", "   "); err != nil {
 		t.Fatalf("clear: %v", err)
 	}
 
-	if _, ok := s.Labels()["CRD-1"]; ok {
+	if _, ok := s.Labels()["WAYF-1"]; ok {
 		t.Fatal("a blank label should have removed the entry")
 	}
 }
@@ -220,26 +220,26 @@ func TestLabelsAndTagsDoNotInterfere(t *testing.T) {
 	// setting one must not disturb the other.
 	s, _ := Open(t.TempDir())
 
-	_ = s.Set("/w/a", "CRD-1")
-	_ = s.SetLabel("CRD-1", "Checkout redesign")
+	_ = s.Set("/w/a", "WAYF-1")
+	_ = s.SetLabel("WAYF-1", "Checkout redesign")
 
-	if s.Tags()["/w/a"] != "CRD-1" {
+	if s.Tags()["/w/a"] != "WAYF-1" {
 		t.Fatal("the tag should be unchanged by setting a label")
 	}
 
-	if s.Labels()["CRD-1"] != "Checkout redesign" {
+	if s.Labels()["WAYF-1"] != "Checkout redesign" {
 		t.Fatal("the label should be unchanged by setting a tag")
 	}
 }
 
 func TestLabelsReturnsACopy(t *testing.T) {
 	s, _ := Open(t.TempDir())
-	_ = s.SetLabel("CRD-1", "Checkout redesign")
+	_ = s.SetLabel("WAYF-1", "Checkout redesign")
 
 	labels := s.Labels()
-	labels["CRD-1"] = "mutated"
+	labels["WAYF-1"] = "mutated"
 
-	if s.Labels()["CRD-1"] != "Checkout redesign" {
+	if s.Labels()["WAYF-1"] != "Checkout redesign" {
 		t.Fatal("Labels handed out the live map")
 	}
 }
@@ -254,7 +254,7 @@ func TestOpenWithoutAStateDirectory(t *testing.T) {
 		t.Fatal("store should not be nil")
 	}
 
-	if err := s.Set("/w/a", "CRD-1"); err == nil {
+	if err := s.Set("/w/a", "WAYF-1"); err == nil {
 		t.Fatal("saving without a directory should fail rather than pretend")
 	}
 }

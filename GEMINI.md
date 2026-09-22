@@ -83,7 +83,7 @@ wayfindr/
 
 Defined in `internal/group/resolve.go`, the resolver evaluates each worktree using the first match:
 1. **Explicit Tag** (`SourceExplicit`): Assigned manually via `t` key or `--tag`. Keyed by absolute worktree path.
-2. **Ticket Key** (`SourceJira`): Regex pattern matching ticket identifiers (e.g. `CRD-20748`, case-insensitive). Checked first against the branch name; if absent or detached, checked against the Herdr workspace label. The matched key is converted to uppercase.
+2. **Ticket Key** (`SourceJira`): Regex pattern matching ticket identifiers (e.g. `WAYF-20748`, case-insensitive). Checked first against the branch name; if absent or detached, checked against the Herdr workspace label. The matched key is converted to uppercase.
 3. **Branch Pattern** (`SourceBranchPattern`): User-configured regexes with a `(?P<group>...)` named capture group evaluated against the branch.
 4. **Shared Name** (`SourceWorktreeName`): Directory basename shared by worktrees across **two or more distinct repositories** (`repo_root`).
 5. **Ungrouped** (`SourceNone`): Any unmatched worktree. Displays under `Ungrouped`, defaults to collapsed/folded, and always sorts to the bottom regardless of sort order or direction.
@@ -97,7 +97,7 @@ Header renames via `R` or `--rename` override only the display label without alt
 - **Dual Presentations**:
   - `list`: 40-column tree view with collapsible feature groups.
   - `cards`: Sized to card contents. Displays top-level feature cards; pressing a card drills down into that feature's worktree cards.
-- **Card Sizing**: Cards dynamically adjust row capacity based on the widest name in the row (`desiredWidth`), preventing truncated repo names like `credit-decision-srvc` vs `credit-decision-engine`.
+- **Card Sizing**: Cards dynamically adjust row capacity based on the widest name in the row (`desiredWidth`), preventing truncated repo names like `marketplace-billing-service` vs `credit-decision-engine`.
 - **Card Activation**: Requires two clicks (first click selects/aims, second click on the selected card opens) to prevent mis-clicks during reflows.
 - **Sorting (`s`)**: Cycles `alpha asc` -> `alpha desc` -> `status asc` -> `status desc` -> `agent asc` -> `agent desc`. Both features and worktree members are sorted by the active rule.
 - **Right-Click Context Menu**:

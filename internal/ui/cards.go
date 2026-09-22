@@ -47,7 +47,7 @@ const nameOverhead = cardFrameSize + 2 + 2
 // at a time of however many cards fit at the width that row needs.
 //
 // Rows are packed rather than columned because a name that does not fit is a
-// card that does not say which repository it is — credit-decision-srvc and
+// card that does not say which repository it is — marketplace-billing-service and
 // credit-decision-engine both clip to "credit-deci…". So a row takes as many
 // cards as it can while still showing the longest name among them, and the rest
 // move down.
