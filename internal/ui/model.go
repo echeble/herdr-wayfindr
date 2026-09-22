@@ -24,7 +24,7 @@ import (
 // worktree.list per repository and a git status per checkout.
 const callTime = 20 * time.Second
 
-// prPhaseTime bounds the pull-request pass, which is one `gh` round trip per
+// prPhaseTime bounds the pull-request pass, which is a network round trip per
 // branch. Forty branches through eight workers is seconds, not milliseconds,
 // and a rate-limited GitHub is slower still.
 const prPhaseTime = 90 * time.Second

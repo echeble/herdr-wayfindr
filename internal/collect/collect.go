@@ -5,6 +5,8 @@ package collect
 
 import (
 	"context"
+	"errors"
+	"net/http"
 	"slices"
 	"sort"
 	"strings"
@@ -54,7 +56,7 @@ type Worktree struct {
 	Git GitStatus
 
 	// PR is GitHub's answer for this worktree's branch. It stays PRUnknown
-	// when the lookup is off, the remote is not GitHub, or gh could not answer.
+	// when the lookup is off, the remote is not GitHub, or GitHub could not answer.
 	PR PR
 
 	// IsPrincipal reports whether this checkout is on a principal branch
@@ -152,6 +154,9 @@ type World struct {
 	Errors []string
 }
 
+// TokenResolver resolves an authentication token for the given host.
+type TokenResolver func(ctx context.Context, host string) (string, error)
+
 // Collector fetches the world and caches the expensive parts between refreshes.
 type Collector struct {
 	client herdr.Client
@@ -167,9 +172,15 @@ type Collector struct {
 	// and it is not GitHub". Presence is what distinguishes that from "not yet
 	// asked", so it is read with the two-value form.
 	slugCache map[string]string
+	// tokenCache maps a host (e.g. "github.com") to its resolved authentication
+	// token, "" meaning "asked, but no token found".
+	tokenCache map[string]string
 
 	defaultBranchCache map[string]string
 	principalBranches  []string
+
+	tokenResolver TokenResolver
+	httpClient    *http.Client
 }
 
 func New(client herdr.Client) *Collector {
@@ -178,8 +189,24 @@ func New(client herdr.Client) *Collector {
 		gitCache:           map[string]GitStatus{},
 		prCache:            map[string]PR{},
 		slugCache:          map[string]string{},
+		tokenCache:         map[string]string{},
 		defaultBranchCache: map[string]string{},
+		httpClient:         &http.Client{Timeout: prTimeout},
 	}
+}
+
+// WithTokenResolver sets a custom token resolver (useful for testing).
+func (c *Collector) WithTokenResolver(r TokenResolver) *Collector {
+	c.tokenResolver = r
+
+	return c
+}
+
+// WithHTTPClient sets a custom HTTP client (useful for testing).
+func (c *Collector) WithHTTPClient(client *http.Client) *Collector {
+	c.httpClient = client
+
+	return c
 }
 
 // WithPrincipalBranches sets custom principal branch names from user config.
@@ -190,11 +217,45 @@ func (c *Collector) WithPrincipalBranches(branches []string) *Collector {
 }
 
 // WithPR turns the pull-request lookup on, which is what CollectPR does at all.
-// It is off by default because it costs a `gh` call per branch.
+// It is off by default because it costs network calls per branch.
 func (c *Collector) WithPR(on bool) *Collector {
 	c.withPR = on
 
 	return c
+}
+
+func (c *Collector) tokenFor(ctx context.Context, host string) (string, error) {
+	c.mu.Lock()
+	tok, ok := c.tokenCache[host]
+	if ok {
+		c.mu.Unlock()
+		if tok == "" {
+			return "", errors.New("token not found (set GITHUB_TOKEN or configure git credential)")
+		}
+
+		return tok, nil
+	}
+	c.mu.Unlock()
+
+	resolver := c.tokenResolver
+	if resolver == nil {
+		resolver = resolveToken
+	}
+
+	tok, err := resolver(ctx, host)
+
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if err != nil || tok == "" {
+		c.tokenCache[host] = ""
+
+		return "", errors.New("token not found (set GITHUB_TOKEN or configure git credential)")
+	}
+
+	c.tokenCache[host] = tok
+
+	return tok, nil
 }
 
 // Collect takes a fresh snapshot, fans out over every repository it names, and
@@ -400,7 +461,7 @@ func (c *Collector) attachGit(ctx context.Context, worktrees []Worktree, refresh
 // caller can keep drawing the picture it has while this runs.
 //
 // It is a second pass rather than part of Collect because it is by far the
-// slowest thing the plugin does: a `gh` round trip per branch, some seconds in
+// slowest thing the plugin does: a network round trip per branch, some seconds in
 // total. The list has to be on screen before that starts.
 func (c *Collector) CollectPR(ctx context.Context, world World) World {
 	if !c.withPR || len(world.Worktrees) == 0 {
@@ -423,10 +484,6 @@ func (c *Collector) CollectPR(ctx context.Context, world World) World {
 func (c *Collector) attachPR(ctx context.Context, worktrees []Worktree) []string {
 	if !c.withPR || len(worktrees) == 0 {
 		return nil
-	}
-
-	if _, ok := toolPath("gh"); !ok {
-		return []string{"gh is not installed; pull-request state is unavailable"}
 	}
 
 	type entry struct {
@@ -459,7 +516,21 @@ func (c *Collector) attachPR(ctx context.Context, worktrees []Worktree) []string
 					continue
 				}
 
-				pr, err := lookupPR(ctx, slug, worktrees[i].Branch)
+				host, owner, repo, err := splitSlug(slug)
+				if err != nil {
+					results <- entry{index: i, err: err}
+
+					continue
+				}
+
+				token, err := c.tokenFor(ctx, host)
+				if err != nil {
+					results <- entry{index: i, err: err}
+
+					continue
+				}
+
+				pr, err := lookupPR(ctx, c.httpClient, token, host, owner, repo, worktrees[i].Branch)
 				results <- entry{index: i, pr: pr, err: err}
 			}
 		}()
@@ -479,10 +550,10 @@ func (c *Collector) attachPR(ctx context.Context, worktrees []Worktree) []string
 
 	for res := range results {
 		if res.err != nil {
-			// One note, not forty: a broken gh fails identically for every
+			// One note, not forty: a broken token or API failure fails identically for every
 			// branch, and the footer has room for one line.
 			if failure == "" {
-				failure = "gh: " + res.err.Error()
+				failure = "github: " + res.err.Error()
 			}
 
 			continue

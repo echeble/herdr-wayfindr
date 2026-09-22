@@ -3,6 +3,13 @@
 All notable changes to Wayfindr are recorded here, one entry per plugin
 version (`herdr-plugin.toml`'s `version` field), newest first.
 
+## [0.19.0] - 2026-09-22
+
+### Changed
+
+- Replaced external `gh` CLI dependency with direct GitHub GraphQL API integration using Go's standard `net/http` client.
+- Pull-request authentication now resolves automatically from standard environment variables (`GITHUB_TOKEN`, `GH_TOKEN`) or `git credential fill`.
+
 ## [0.18.0] - 2026-09-22
 
 ### Added

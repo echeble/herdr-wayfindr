@@ -12,10 +12,10 @@ wayfindr/
 │   └── herdr-wayfindr/
 │       └── main.go           # CLI entrypoint; routes between TUI pane and one-shot flags
 ├── internal/
-│   ├── collect/              # Gathers world state: worktree listing, git porcelain v2, gh PR checks
+│   ├── collect/              # Gathers world state: worktree listing, git porcelain v2, GitHub PR checks
 │   │   ├── collect.go        # Fan-out collector across distinct repo roots; agent state aggregation
 │   │   ├── git.go            # git status --porcelain=v2 --branch parsing; hardened PATH lookup
-│   │   └── pr.go             # gh pr list inspection; AggregatePR logic; merged PR cache
+│   │   └── pr.go             # GitHub GraphQL PR inspection; AggregatePR logic; merged PR cache
 │   ├── config/               # TOML config loader (~/.config/herdr/plugins/config/echeble.wayfindr/)
 │   │   └── config.go         # Defaults, fallback validation, JSON serialization for pane.sh
 │   ├── group/                # Pure business logic: feature grouping resolver
@@ -57,7 +57,8 @@ wayfindr/
    - Herdr displays a blank pane until the process emits its first frame.
    - Bubble Tea `Init()` renders an initial loading state immediately, before dispatching async fetch commands.
 3. **Decoupled Asynchronous PR Check**:
-   - Pull-request lookups (`gh pr list`) are executed as a secondary pass (`CollectPR`) after initial paint.
+   - Pull-request lookups (GitHub GraphQL queries via `net/http`) are executed as a secondary pass (`CollectPR`) after initial paint.
+   - Authentication resolves from `GITHUB_TOKEN`, `GH_TOKEN`, or `git credential fill`.
    - Merged PR status is immutable; once merged, it is permanently cached in memory for the life of the pane session.
    - Non-GitHub remotes are detected early via `remote.origin.url` and skipped.
 4. **Self-Sizing Split Panes**:
