@@ -3,6 +3,13 @@
 All notable changes to Wayfindr are recorded here, one entry per plugin
 version (`herdr-plugin.toml`'s `version` field), newest first.
 
+## [0.17.0] - 2026-09-22
+
+### Added
+
+- GitHub Actions CI workflow to enforce Semantic Versioning and verify synchronization across `herdr-plugin.toml`, `README.md`, and `CHANGELOG.md` on pull requests.
+- Local verification script `.github/scripts/verify-semver.py` to check SemVer rules before pushing.
+
 ## [0.16.0] - 2026-09-22
 
 ### Added
