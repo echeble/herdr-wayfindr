@@ -12,8 +12,8 @@ func herdrAgent(status string) herdr.Agent {
 
 func TestParsePorcelainV2(t *testing.T) {
 	out := `# branch.oid abc123
-# branch.head CRD-20748
-# branch.upstream origin/CRD-20748
+# branch.head WAYF-20748
+# branch.upstream origin/WAYF-20748
 # branch.ab +3 -1
 1 M. N... 100644 100644 100644 aaa bbb src/staged.go
 1 .M N... 100644 100644 100644 ccc ddd src/unstaged.go
@@ -30,8 +30,8 @@ u UU N... 100644 100644 100644 100644 iii jjj kkk src/conflict.go
 		t.Fatal("status should be known")
 	}
 
-	if got.Branch != "CRD-20748" {
-		t.Errorf("branch = %q, want CRD-20748", got.Branch)
+	if got.Branch != "WAYF-20748" {
+		t.Errorf("branch = %q, want WAYF-20748", got.Branch)
 	}
 
 	if got.Ahead != 3 || got.Behind != 1 {
@@ -101,7 +101,7 @@ func TestParsePorcelainV2DetachedHead(t *testing.T) {
 
 func TestParsePorcelainV2NoUpstream(t *testing.T) {
 	// A branch with no upstream has no branch.ab line at all.
-	got := parsePorcelainV2("# branch.head CRD-1\n1 M. N... 1 1 1 a b f.go\n")
+	got := parsePorcelainV2("# branch.head WAYF-1\n1 M. N... 1 1 1 a b f.go\n")
 
 	if got.Ahead != 0 || got.Behind != 0 {
 		t.Errorf("ahead/behind = %d/%d, want 0/0", got.Ahead, got.Behind)

@@ -15,7 +15,7 @@ import (
 func TestTruncateRespectsWidth(t *testing.T) {
 	// A sidebar is narrow, and a long branch name must not push the pane into
 	// horizontal scroll.
-	long := "  ◌ ca-bnpl-decision-engine · worktree-CRD-20226_remove_consumer_plan_deprecated_fields"
+	long := "  ◌ ca-bnpl-decision-engine · worktree-WAYF-20226_remove_consumer_plan_deprecated_fields"
 
 	for _, width := range []int{10, 26, 40} {
 		got := truncate(long, width)
@@ -26,7 +26,7 @@ func TestTruncateRespectsWidth(t *testing.T) {
 }
 
 func TestTruncateLeavesShortStringsAlone(t *testing.T) {
-	if got := truncate("CRD-1", 40); got != "CRD-1" {
+	if got := truncate("WAYF-1", 40); got != "WAYF-1" {
 		t.Fatalf("got %q", got)
 	}
 }
@@ -169,8 +169,8 @@ func TestViewHeightIsStable(t *testing.T) {
 	loading := strings.Count(m.View(), "\n")
 
 	m.loaded = true
-	m.world = world(wt("/w/a", "cds", "CRD-1", "w1", herdr.StatusIdle))
-	m.assignments = map[string]group.Assignment{"/w/a": {Name: "CRD-1", Source: group.SourceJira}}
+	m.world = world(wt("/w/a", "cds", "WAYF-1", "w1", herdr.StatusIdle))
+	m.assignments = map[string]group.Assignment{"/w/a": {Name: "WAYF-1", Source: group.SourceJira}}
 	m.rows = buildRows(m.world, m.assignments, m.collapsed, ordering{})
 
 	if listed := strings.Count(m.View(), "\n"); listed != loading {

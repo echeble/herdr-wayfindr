@@ -17,7 +17,7 @@ func TestParseRemote(t *testing.T) {
 		// A trailing newline is what `git config --get` actually hands back.
 		{"git@github.com:Credify/credit-decision-srvc.git\n", "Credify/credit-decision-srvc"},
 		// An enterprise host keeps its name, which is the form gh --repo takes.
-		{"git@github.upgrade.com:platform/service.git", "github.upgrade.com/platform/service"},
+		{"git@github.example.com:platform/service.git", "github.example.com/platform/service"},
 		// Not GitHub: never ask, rather than ask and fail once per branch.
 		{"git@gitlab.com:group/project.git", ""},
 		{"https://bitbucket.org/team/repo.git", ""},
@@ -86,7 +86,7 @@ func TestParsePRState(t *testing.T) {
 func TestPRKeyIsPerRepository(t *testing.T) {
 	// The same branch name exists in several repositories — that is the whole
 	// point of the plugin — so the cache key cannot be the branch alone.
-	if prKey("Credify/a", "CRD-20226") == prKey("Credify/b", "CRD-20226") {
+	if prKey("Credify/a", "WAYF-20226") == prKey("Credify/b", "WAYF-20226") {
 		t.Fatal("prKey must distinguish the same branch in different repositories")
 	}
 }

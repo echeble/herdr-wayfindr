@@ -47,14 +47,14 @@ func assign(pairs map[string]group.Assignment) map[string]group.Assignment { ret
 
 func TestBuildRowsGroupsAndOrders(t *testing.T) {
 	w := world(
-		wt("/w/b", "bnpl", "CRD-2", "w2", herdr.StatusIdle),
-		wt("/w/a", "cds", "CRD-1", "w1", herdr.StatusIdle),
+		wt("/w/b", "bnpl", "WAYF-2", "w2", herdr.StatusIdle),
+		wt("/w/a", "cds", "WAYF-1", "w1", herdr.StatusIdle),
 		wt("/w/z", "k8s", "master", "", herdr.StatusUnknown),
 	)
 
 	rows := buildRows(w, assign(map[string]group.Assignment{
-		"/w/a": {Name: "CRD-1", Source: group.SourceJira},
-		"/w/b": {Name: "CRD-2", Source: group.SourceJira},
+		"/w/a": {Name: "WAYF-1", Source: group.SourceJira},
+		"/w/b": {Name: "WAYF-2", Source: group.SourceJira},
 		"/w/z": {Source: group.SourceNone},
 	}), map[string]bool{}, ordering{})
 
@@ -66,7 +66,7 @@ func TestBuildRowsGroupsAndOrders(t *testing.T) {
 		}
 	}
 
-	want := []string{"CRD-1", "CRD-2", ungroupedLabel}
+	want := []string{"WAYF-1", "WAYF-2", ungroupedLabel}
 	if strings.Join(headers, ",") != strings.Join(want, ",") {
 		t.Fatalf("headers = %v, want %v", headers, want)
 	}
@@ -92,13 +92,13 @@ func TestBuildRowsPutsUngroupedLast(t *testing.T) {
 
 func TestBuildRowsCollapseHidesMembers(t *testing.T) {
 	w := world(
-		wt("/w/a", "cds", "CRD-1", "w1", herdr.StatusIdle),
-		wt("/w/b", "bnpl", "CRD-1", "w2", herdr.StatusIdle),
+		wt("/w/a", "cds", "WAYF-1", "w1", herdr.StatusIdle),
+		wt("/w/b", "bnpl", "WAYF-1", "w2", herdr.StatusIdle),
 	)
 
 	assignments := assign(map[string]group.Assignment{
-		"/w/a": {Name: "CRD-1", Source: group.SourceJira},
-		"/w/b": {Name: "CRD-1", Source: group.SourceJira},
+		"/w/a": {Name: "WAYF-1", Source: group.SourceJira},
+		"/w/b": {Name: "WAYF-1", Source: group.SourceJira},
 	})
 
 	expanded := buildRows(w, assignments, map[string]bool{}, ordering{})
@@ -106,7 +106,7 @@ func TestBuildRowsCollapseHidesMembers(t *testing.T) {
 		t.Fatalf("expanded rows = %d, want 3", len(expanded))
 	}
 
-	collapsed := buildRows(w, assignments, map[string]bool{"CRD-1": true}, ordering{})
+	collapsed := buildRows(w, assignments, map[string]bool{"WAYF-1": true}, ordering{})
 	if len(collapsed) != 1 {
 		t.Fatalf("collapsed rows = %d, want 1", len(collapsed))
 	}
@@ -123,13 +123,13 @@ func TestBuildRowsCollapseHidesMembers(t *testing.T) {
 
 func TestBuildRowsCountsOpenMembers(t *testing.T) {
 	w := world(
-		wt("/w/a", "cds", "CRD-1", "w1", herdr.StatusIdle),
-		wt("/w/b", "bnpl", "CRD-1", "", herdr.StatusUnknown),
+		wt("/w/a", "cds", "WAYF-1", "w1", herdr.StatusIdle),
+		wt("/w/b", "bnpl", "WAYF-1", "", herdr.StatusUnknown),
 	)
 
 	rows := buildRows(w, assign(map[string]group.Assignment{
-		"/w/a": {Name: "CRD-1", Source: group.SourceJira},
-		"/w/b": {Name: "CRD-1", Source: group.SourceJira},
+		"/w/a": {Name: "WAYF-1", Source: group.SourceJira},
+		"/w/b": {Name: "WAYF-1", Source: group.SourceJira},
 	}), map[string]bool{}, ordering{})
 
 	if rows[0].openCount != 1 || rows[0].members != 2 {
@@ -139,15 +139,15 @@ func TestBuildRowsCountsOpenMembers(t *testing.T) {
 
 func TestBuildRowsHeaderShowsMostUrgentStatus(t *testing.T) {
 	w := world(
-		wt("/w/a", "cds", "CRD-1", "w1", herdr.StatusIdle),
-		wt("/w/b", "bnpl", "CRD-1", "w2", herdr.StatusBlocked),
-		wt("/w/c", "k8s", "CRD-1", "w3", herdr.StatusWorking),
+		wt("/w/a", "cds", "WAYF-1", "w1", herdr.StatusIdle),
+		wt("/w/b", "bnpl", "WAYF-1", "w2", herdr.StatusBlocked),
+		wt("/w/c", "k8s", "WAYF-1", "w3", herdr.StatusWorking),
 	)
 
 	rows := buildRows(w, assign(map[string]group.Assignment{
-		"/w/a": {Name: "CRD-1"},
-		"/w/b": {Name: "CRD-1"},
-		"/w/c": {Name: "CRD-1"},
+		"/w/a": {Name: "WAYF-1"},
+		"/w/b": {Name: "WAYF-1"},
+		"/w/c": {Name: "WAYF-1"},
 	}), map[string]bool{}, ordering{})
 
 	if rows[0].status != herdr.StatusBlocked {
@@ -159,7 +159,7 @@ func TestBuildRowsExplicitTagWinsTheHeaderSource(t *testing.T) {
 	// One member tagged by hand makes the whole group an explicit one, so it
 	// is not rendered as a guess.
 	w := world(
-		wt("/w/a", "cds", "CRD-1", "w1", herdr.StatusIdle),
+		wt("/w/a", "cds", "WAYF-1", "w1", herdr.StatusIdle),
 		wt("/w/b", "bnpl", "other", "w2", herdr.StatusIdle),
 	)
 
@@ -177,16 +177,16 @@ func TestBuildRowsSumsAGroupsAgents(t *testing.T) {
 	// A feature's agent line counts every agent across its worktrees, not the
 	// worktrees that have one: two checkouts with two agents each is four.
 	w := world(
-		crew(wt("/w/a", "cds", "CRD-1", "w1", herdr.StatusWorking), herdr.StatusWorking),
-		crew(wt("/w/b", "bnpl", "CRD-1", "w2", herdr.StatusBlocked), herdr.StatusWorking),
+		crew(wt("/w/a", "cds", "WAYF-1", "w1", herdr.StatusWorking), herdr.StatusWorking),
+		crew(wt("/w/b", "bnpl", "WAYF-1", "w2", herdr.StatusBlocked), herdr.StatusWorking),
 		// A closed checkout brings nothing to the count.
-		wt("/w/c", "k8s", "CRD-1", "", herdr.StatusUnknown),
+		wt("/w/c", "k8s", "WAYF-1", "", herdr.StatusUnknown),
 	)
 
 	rows := buildRows(w, assign(map[string]group.Assignment{
-		"/w/a": {Name: "CRD-1", Source: group.SourceJira},
-		"/w/b": {Name: "CRD-1", Source: group.SourceJira},
-		"/w/c": {Name: "CRD-1", Source: group.SourceJira},
+		"/w/a": {Name: "WAYF-1", Source: group.SourceJira},
+		"/w/b": {Name: "WAYF-1", Source: group.SourceJira},
+		"/w/c": {Name: "WAYF-1", Source: group.SourceJira},
 	}), map[string]bool{}, ordering{})
 
 	header := rows[0]
@@ -237,13 +237,13 @@ func TestBuildRowsGivesAGroupItsPullRequestState(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			w := world(
-				withPR(wt("/w/a", "cds", "CRD-1", "w1", herdr.StatusIdle), tc.states[0]),
-				withPR(wt("/w/b", "bnpl", "CRD-1", "w2", herdr.StatusIdle), tc.states[1]),
+				withPR(wt("/w/a", "cds", "WAYF-1", "w1", herdr.StatusIdle), tc.states[0]),
+				withPR(wt("/w/b", "bnpl", "WAYF-1", "w2", herdr.StatusIdle), tc.states[1]),
 			)
 
 			rows := buildRows(w, assign(map[string]group.Assignment{
-				"/w/a": {Name: "CRD-1", Source: group.SourceJira},
-				"/w/b": {Name: "CRD-1", Source: group.SourceJira},
+				"/w/a": {Name: "WAYF-1", Source: group.SourceJira},
+				"/w/b": {Name: "WAYF-1", Source: group.SourceJira},
 			}), map[string]bool{}, ordering{})
 
 			if rows[0].pr != tc.want {
@@ -262,15 +262,15 @@ func TestBuildRowsEmptyWorld(t *testing.T) {
 func TestDisplayNameFallsBackToTheResolvedName(t *testing.T) {
 	// A row built straight from the resolver — in a test, or before applyLabels
 	// has run — has no override yet, and has to read exactly as it always did.
-	r := row{kind: rowGroup, name: "CRD-1"}
+	r := row{kind: rowGroup, name: "WAYF-1"}
 
-	if got := r.displayName(); got != "CRD-1" {
-		t.Fatalf("displayName = %q, want CRD-1", got)
+	if got := r.displayName(); got != "WAYF-1" {
+		t.Fatalf("displayName = %q, want WAYF-1", got)
 	}
 }
 
 func TestDisplayNamePrefersTheLabel(t *testing.T) {
-	r := row{kind: rowGroup, name: "CRD-1", label: "Checkout redesign"}
+	r := row{kind: rowGroup, name: "WAYF-1", label: "Checkout redesign"}
 
 	if got := r.displayName(); got != "Checkout redesign" {
 		t.Fatalf("displayName = %q, want the override", got)
@@ -279,14 +279,14 @@ func TestDisplayNamePrefersTheLabel(t *testing.T) {
 
 func TestApplyLabelsOnlyTouchesMatchingHeaders(t *testing.T) {
 	w := world(
-		wt("/w/a", "cds", "CRD-1", "w1", herdr.StatusIdle),
-		wt("/w/b", "bnpl", "CRD-2", "w2", herdr.StatusIdle),
+		wt("/w/a", "cds", "WAYF-1", "w1", herdr.StatusIdle),
+		wt("/w/b", "bnpl", "WAYF-2", "w2", herdr.StatusIdle),
 	)
 
 	rows := applyLabels(buildRows(w, assign(map[string]group.Assignment{
-		"/w/a": {Name: "CRD-1", Source: group.SourceJira},
-		"/w/b": {Name: "CRD-2", Source: group.SourceJira},
-	}), map[string]bool{}, ordering{}), map[string]string{"CRD-1": "Checkout redesign"})
+		"/w/a": {Name: "WAYF-1", Source: group.SourceJira},
+		"/w/b": {Name: "WAYF-2", Source: group.SourceJira},
+	}), map[string]bool{}, ordering{}), map[string]string{"WAYF-1": "Checkout redesign"})
 
 	for _, r := range rows {
 		if r.kind != rowGroup {
@@ -294,24 +294,24 @@ func TestApplyLabelsOnlyTouchesMatchingHeaders(t *testing.T) {
 		}
 
 		switch r.name {
-		case "CRD-1":
+		case "WAYF-1":
 			if r.displayName() != "Checkout redesign" {
-				t.Errorf("CRD-1 header = %q, want the override", r.displayName())
+				t.Errorf("WAYF-1 header = %q, want the override", r.displayName())
 			}
-		case "CRD-2":
-			if r.displayName() != "CRD-2" {
-				t.Errorf("CRD-2 header = %q, want it unaffected by another group's rename", r.displayName())
+		case "WAYF-2":
+			if r.displayName() != "WAYF-2" {
+				t.Errorf("WAYF-2 header = %q, want it unaffected by another group's rename", r.displayName())
 			}
 		}
 	}
 }
 
 func TestApplyLabelsLeavesWorktreeRowsAlone(t *testing.T) {
-	w := world(wt("/w/a", "cds", "CRD-1", "w1", herdr.StatusIdle))
+	w := world(wt("/w/a", "cds", "WAYF-1", "w1", herdr.StatusIdle))
 
 	rows := applyLabels(buildRows(w, assign(map[string]group.Assignment{
-		"/w/a": {Name: "CRD-1", Source: group.SourceJira},
-	}), map[string]bool{}, ordering{}), map[string]string{"CRD-1": "Checkout redesign"})
+		"/w/a": {Name: "WAYF-1", Source: group.SourceJira},
+	}), map[string]bool{}, ordering{}), map[string]string{"WAYF-1": "Checkout redesign"})
 
 	for _, r := range rows {
 		if r.kind == rowWorktree && r.label != "" {

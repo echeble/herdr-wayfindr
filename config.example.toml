@@ -7,12 +7,12 @@
 [grouping]
 # Extracts a ticket key from anywhere in the branch name, and from the Herdr
 # workspace's name when the branch holds none — a worktree on master in a
-# workspace called crd-20764 still belongs to that feature. The first capture
+# workspace called wayf-20764 still belongs to that feature. The first capture
 # group wins, or the whole match when the pattern has none. Finding the key
-# anywhere is what makes CRD-20748, worktree/CRD-20748 and
-# worktree-CRD-20748_fix one group instead of three.
+# anywhere is what makes WAYF-20748, worktree/WAYF-20748 and
+# worktree-WAYF-20748_fix one group instead of three.
 #
-# (?i) puts crd-20748 in the same group as CRD-20748; the name is upper-cased
+# (?i) puts wayf-20748 in the same group as WAYF-20748; the name is upper-cased
 # once matched. The guards on both ends keep the key from starting or ending
 # mid-token, which is what stops a generated name like rapid-forest-349e from
 # reading as the ticket FOREST-349.

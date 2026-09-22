@@ -20,13 +20,13 @@ import (
 const PluginID = "echeble.wayfindr"
 
 // Defaults. JiraPattern finds a ticket key anywhere in a branch name, which is
-// how one feature is already spelled across repositories: CRD-20748,
-// worktree/CRD-20099 and worktree-CRD-20226_remove_fields all name their
+// how one feature is already spelled across repositories: WAYF-20748,
+// worktree/WAYF-20099 and worktree-WAYF-20226_remove_fields all name their
 // ticket, and anchoring to the start would scatter them into separate groups.
 // The leading guard keeps the key from starting mid-token.
 //
 // It is case-insensitive because the case a ticket is typed in is an accident
-// of how the worktree was made — crd-20748 and CRD-20748 are one feature — and
+// of how the worktree was made — wayf-20748 and WAYF-20748 are one feature — and
 // the name is upper-cased once matched so the group has a single spelling. The
 // trailing guard is what makes that safe: without it a generated name like
 // worktree/rapid-forest-349e would read as the ticket FOREST-349, because the

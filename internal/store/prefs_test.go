@@ -104,7 +104,7 @@ func TestPrefsAreSeparateFromTheTagFile(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := tags.Set("/w/a", "CRD-1"); err != nil {
+	if err := tags.Set("/w/a", "WAYF-1"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -122,7 +122,7 @@ func TestPrefsAreSeparateFromTheTagFile(t *testing.T) {
 		t.Fatalf("the tag file should survive a preference write: %v", err)
 	}
 
-	if reopened.Tags()["/w/a"] != "CRD-1" {
+	if reopened.Tags()["/w/a"] != "WAYF-1" {
 		t.Fatalf("tags = %v, want the tag intact", reopened.Tags())
 	}
 }

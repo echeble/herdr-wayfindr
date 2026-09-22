@@ -2,7 +2,7 @@
 
 ![Go](https://img.shields.io/badge/go-1.24%2B-00ADD8.svg)
 ![herdr 0.9.0+](https://img.shields.io/badge/herdr-0.9.0%2B-8a2be2)
-![wayfindr v0.15.0](https://img.shields.io/badge/wayfindr-v0.15.0-blue)
+![wayfindr v0.15.1](https://img.shields.io/badge/wayfindr-v0.15.1-blue)
 ![platforms: linux, macOS](https://img.shields.io/badge/platforms-linux%2C%20macOS-informational)
 
 **Group worktrees across every workspace, not just within one repository.** A [Herdr](https://herdr.dev)
@@ -15,11 +15,11 @@ lets you jump between them from a sidebar pane.
 **List** — one row per worktree, grouped by feature, colour-coded, sorted the way you left it.
 
 ```
-▾ ○ CRD-20226 in progress
-  ◌ ca-bnpl-decision-engine · worktree-CRD-20226_remove_deprecat ✔
+▾ ○ WAYF-20226 in progress
+  ◌ ca-bnpl-decision-engine · worktree-WAYF-20226_remove_deprecat ✔
   ◌ credit-decision-srvc ✱4
-  · credit-decision-srvc · worktree-CRD-20226 ⧗
-▾ ○ CRD-20748 merged
+  · credit-decision-srvc · worktree-WAYF-20226 ⧗
+▾ ○ WAYF-20748 merged
   · bnpl-decision-engine-server ✔
   · credit-decision-srvc ↑2 ✔
 ▸ ○ Ungrouped
@@ -28,7 +28,7 @@ lets you jump between them from a sidebar pane.
 **Cards** — two screens of buttons: a card per feature, then a card per worktree in it.
 
 ```
-‹ Features                     CRD-20748
+‹ Features                     WAYF-20748
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ ● credit-decision-srvc               ┃
 ┃                                      ┃
@@ -40,7 +40,7 @@ lets you jump between them from a sidebar pane.
 ╭──────────────────────────────────────╮
 │ ◆ ca-bnpl-decision-engine            │
 │                                      │
-│ worktree-CRD-20748                   │
+│ worktree-WAYF-20748                  │
 │ 1 agent blocked                      │
 │                                      │
 │                             ✔ merged │
@@ -160,7 +160,7 @@ same parts unpacked onto their own lines, with room to spell out the ones the
 list can only afford a glyph for.
 
 ```
-  ● credit-decision-srvc · worktree-CRD-20748 ↑3 ✱3 ·here ⧗
+  ● credit-decision-srvc · worktree-WAYF-20748 ↑3 ✱3 ·here ⧗
   1 2                      3                  4     5     6
 ```
 
@@ -223,7 +223,7 @@ reason a worktree does.
 ╭──────────────────────────────────────╮
 │ ◆ ca-bnpl-decision-engine            │   the same leading glyph
 │                                      │
-│ worktree-CRD-20748                   │   the branch
+│ worktree-WAYF-20748                  │   the branch
 │ 1 agent blocked                      │   the agent line, counted
 │ ↑3 ✱3                                │   the same git summary
 │                                      │
@@ -251,7 +251,7 @@ herdr plugin install Credify/llm-context/plugins/wayfindr
 Open the sidebar:
 
 ```bash
-herdr plugin action invoke toggle --plugin echebleupgrade.wayfindr
+herdr plugin action invoke toggle --plugin echeble.wayfindr
 ```
 
 <details>
@@ -264,7 +264,7 @@ Not configured automatically — add it to your Herdr config at
 [[keys.command]]
 key = "cmd+shift+f"
 type = "plugin_action"
-command = "echebleupgrade.wayfindr.toggle"
+command = "echeble.wayfindr.toggle"
 description = "toggle the feature sidebar"
 ```
 
@@ -307,14 +307,14 @@ herdr plugin link ~/wayfindr
 Check it registered cleanly — `warnings` should be empty:
 
 ```bash
-herdr plugin list --plugin echebleupgrade.wayfindr --json
+herdr plugin list --plugin echeble.wayfindr --json
 ```
 
 </details>
 
 ## Quickstart
 
-1. Install the plugin and, optionally, bind a key to `echebleupgrade.wayfindr.toggle`.
+1. Install the plugin and, optionally, bind a key to `echeble.wayfindr.toggle`.
 2. Open it — the pane appears as a 40-column split against the left edge of
    the workspace, listing every worktree Herdr knows about, grouped by feature.
 3. Press `s` to cycle the sort, `space` to fold or unfold a group, `v` to
@@ -484,7 +484,7 @@ the worktree stays where you put it.
 
 `R` on a group header, or on a feature card, renames what the heading says.
 That is all it changes: the worktrees under it keep whatever tag or rule put
-them there, so a renamed `CRD-20748` still collects the same three checkouts.
+them there, so a renamed `WAYF-20748` still collects the same three checkouts.
 An empty name puts the derived heading back.
 
 | List | Cards |
@@ -623,7 +623,7 @@ the middle is where the eye already is.
 ```
                    ⌃
 ╭─────────────────╮ ┏━━━━━━━━━━━━━━━━━┓
-│ ○ CRD-20099     │ ┃ ○ CRD-20748     ┃
+│ ○ WAYF-20099    │ ┃ ○ WAYF-20748    ┃
 ╰─────────────────╯ ┗━━━━━━━━━━━━━━━━━┛
                    ⌄
 ```
@@ -738,16 +738,16 @@ folded — it is usually the biggest bucket and the least interesting one. `spac
 unfolds it.
 
 Rule 2 deliberately looks for the key anywhere rather than only at the start,
-because the same ticket gets spelled several ways: `CRD-20099`,
-`worktree/CRD-20099` and `worktree-CRD-20099_fix_thing` are one group. Case is
-one of those ways, so `crd-20099` is the same group as `CRD-20099` — the name is
+because the same ticket gets spelled several ways: `WAYF-20099`,
+`worktree/WAYF-20099` and `worktree-WAYF-20099_fix_thing` are one group. Case is
+one of those ways, so `wayf-20099` is the same group as `WAYF-20099` — the name is
 uppercased once matched. What keeps that from over-matching is the guard at each
 end of the key: `rapid-forest-349e` is a generated worktree name, not the ticket
 `FOREST-349`.
 
 The workspace name is the second place rule 2 looks, and only when the branch
 holds no key: a worktree on `master`, or a detached one, in a workspace you
-named `crd-20764` still belongs to that feature. The branch is asked first
+named `wayf-20764` still belongs to that feature. The branch is asked first
 because it is the worktree's own answer — a workspace can be renamed under it.
 A checkout no workspace has open simply has no name to read.
 
@@ -762,7 +762,7 @@ group as an explicit tag, so it stops depending on the branch name.
 **Renaming a group is a separate thing from grouping it.** `R` on a header only
 changes the text it is shown under — not the tag, not the ticket key, not which
 worktrees land in it. A group renamed "Checkout redesign" is still, underneath,
-whatever rule 1–4 produced (`CRD-1`, say), and still bucketed by that key: a new
+whatever rule 1–4 produced (`WAYF-1`, say), and still bucketed by that key: a new
 worktree on the same branch or with the same tag joins it exactly as before,
 now under the friendlier header. Clearing the rename (an empty entry) goes
 straight back to the resolved name.
@@ -770,7 +770,7 @@ straight back to the resolved name.
 ## Configuration
 
 Optional. Copy [`config.example.toml`](config.example.toml) to the path
-`herdr plugin config-dir echebleupgrade.wayfindr` prints, then edit. Every
+`herdr plugin config-dir echeble.wayfindr` prints, then edit. Every
 setting has a default, so no file means the defaults.
 
 The interesting ones:
@@ -812,21 +812,21 @@ Herdr's own client does, so these work from any pane or shell:
 
 ```bash
 herdr-wayfindr --list                        # the grouping as plain text, with the rule and pull-request state per row
-herdr-wayfindr --tag CRD-20748               # tag the focused workspace's worktree
-herdr-wayfindr --tag --workspace wT CRD-1    # tag a specific workspace
+herdr-wayfindr --tag WAYF-20748               # tag the focused workspace's worktree
+herdr-wayfindr --tag --workspace wT WAYF-1    # tag a specific workspace
 herdr-wayfindr --tag                         # clear that tag
-herdr-wayfindr --rename CRD-1 Checkout redesign  # rename a group's header; CRD-1 is its --list name
-herdr-wayfindr --rename CRD-1                    # clear that rename
+herdr-wayfindr --rename WAYF-1 Checkout redesign  # rename a group's header; WAYF-1 is its --list name
+herdr-wayfindr --rename WAYF-1                    # clear that rename
 herdr-wayfindr --report-tokens               # restamp the $group tokens now
 ```
 
-`herdr plugin action invoke restamp --plugin echebleupgrade.wayfindr` does the
+`herdr plugin action invoke restamp --plugin echeble.wayfindr` does the
 last one from anywhere.
 
 ## Where state lives
 
 Two files, both under `herdr plugin config-dir`'s sibling state directory
-(`~/.local/state/herdr/plugins/echebleupgrade.wayfindr/`):
+(`~/.local/state/herdr/plugins/echeble.wayfindr/`):
 
 - `groups.json` — the explicit tags, keyed by checkout path, because Herdr gives
   worktrees no id and no writable metadata, plus the group renames, keyed by

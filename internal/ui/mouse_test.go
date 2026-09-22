@@ -16,13 +16,13 @@ import (
 // default, so a test has to opt out rather than every other test opting in.
 func clickable(height int) Model {
 	w := world(
-		wt("/w/a", "cds", "CRD-1", "w1", herdr.StatusIdle),
-		wt("/w/b", "bnpl", "CRD-1", "w2", herdr.StatusIdle),
+		wt("/w/a", "cds", "WAYF-1", "w1", herdr.StatusIdle),
+		wt("/w/b", "bnpl", "WAYF-1", "w2", herdr.StatusIdle),
 	)
 
 	assignments := map[string]group.Assignment{
-		"/w/a": {Name: "CRD-1", Source: group.SourceJira},
-		"/w/b": {Name: "CRD-1", Source: group.SourceJira},
+		"/w/a": {Name: "WAYF-1", Source: group.SourceJira},
+		"/w/b": {Name: "WAYF-1", Source: group.SourceJira},
 	}
 
 	return Model{
@@ -96,12 +96,12 @@ func TestClickOnTheFoldMarkerFolds(t *testing.T) {
 	m := clickable(20)
 
 	folded := click(m, 0, m.contentTop())
-	if !folded.collapsed["CRD-1"] {
+	if !folded.collapsed["WAYF-1"] {
 		t.Fatal("a click on the marker column should fold the group")
 	}
 
 	// And unfold it again.
-	if click(folded, 0, m.contentTop()).collapsed["CRD-1"] {
+	if click(folded, 0, m.contentTop()).collapsed["WAYF-1"] {
 		t.Fatal("a second click on the marker should unfold the group")
 	}
 }
@@ -110,7 +110,7 @@ func TestClickOnAGroupNameOnlySelects(t *testing.T) {
 	m := clickable(20)
 
 	after := click(m, 6, m.contentTop())
-	if after.collapsed["CRD-1"] {
+	if after.collapsed["WAYF-1"] {
 		t.Fatal("clicking the name should select the group, not fold it")
 	}
 
@@ -247,7 +247,7 @@ func TestClickOnAMenuItemRunsIt(t *testing.T) {
 		t.Fatal("clicking a menu item should close the menu")
 	}
 
-	if !after.collapsed["CRD-1"] {
+	if !after.collapsed["WAYF-1"] {
 		t.Fatal("clicking Fold should fold the group")
 	}
 }
@@ -463,7 +463,7 @@ func TestMenuFoldTogglesAGroupInTheList(t *testing.T) {
 		t.Fatal("fold should close the menu")
 	}
 
-	if !after.collapsed["CRD-1"] {
+	if !after.collapsed["WAYF-1"] {
 		t.Fatal("selecting fold on a group header should fold it")
 	}
 }
@@ -549,7 +549,7 @@ func TestRunningAMenuItemTurnsHoverTrackingBackOff(t *testing.T) {
 	next, cmd := enter(down(down(m)))
 	after := next.(Model)
 
-	if !after.collapsed["CRD-1"] {
+	if !after.collapsed["WAYF-1"] {
 		t.Fatal("fold did not run")
 	}
 

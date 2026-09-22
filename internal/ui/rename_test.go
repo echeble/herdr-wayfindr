@@ -22,15 +22,15 @@ func renameModel(t *testing.T) Model {
 	}
 
 	w := world(
-		wt("/w/a", "cds", "CRD-1", "w1", herdr.StatusIdle),
-		wt("/w/b", "bnpl", "CRD-1", "w2", herdr.StatusIdle),
-		wt("/w/c", "k8s", "CRD-2", "w3", herdr.StatusIdle),
+		wt("/w/a", "cds", "WAYF-1", "w1", herdr.StatusIdle),
+		wt("/w/b", "bnpl", "WAYF-1", "w2", herdr.StatusIdle),
+		wt("/w/c", "k8s", "WAYF-2", "w3", herdr.StatusIdle),
 	)
 
 	assignments := assign(map[string]group.Assignment{
-		"/w/a": {Name: "CRD-1", Source: group.SourceJira},
-		"/w/b": {Name: "CRD-1", Source: group.SourceJira},
-		"/w/c": {Name: "CRD-2", Source: group.SourceJira},
+		"/w/a": {Name: "WAYF-1", Source: group.SourceJira},
+		"/w/b": {Name: "WAYF-1", Source: group.SourceJira},
+		"/w/c": {Name: "WAYF-2", Source: group.SourceJira},
 	})
 
 	m := Model{
@@ -64,18 +64,18 @@ func TestStartRenameRequiresAGroupSelected(t *testing.T) {
 func TestStartRenamePrefillsAnExistingLabel(t *testing.T) {
 	m := renameModel(t)
 
-	if err := m.store.SetLabel("CRD-1", "Checkout redesign"); err != nil {
+	if err := m.store.SetLabel("WAYF-1", "Checkout redesign"); err != nil {
 		t.Fatalf("set label: %v", err)
 	}
 
-	next := m.startRename() // cursor starts on row 0, the CRD-1 header
+	next := m.startRename() // cursor starts on row 0, the WAYF-1 header
 
 	if next.mode != modeRename {
 		t.Fatalf("mode = %v, want modeRename", next.mode)
 	}
 
-	if next.renameTarget != "CRD-1" {
-		t.Fatalf("renameTarget = %q, want CRD-1", next.renameTarget)
+	if next.renameTarget != "WAYF-1" {
+		t.Fatalf("renameTarget = %q, want WAYF-1", next.renameTarget)
 	}
 
 	if next.input != "Checkout redesign" {
@@ -103,15 +103,15 @@ func TestRenameRelabelsTheHeaderWithoutRegrouping(t *testing.T) {
 	// The identity the pane keys everything off has to be exactly what it was
 	// before the rename: the tag, the branch match, the grouping — nothing
 	// about how the worktrees were assigned should have moved.
-	if after.rows[0].name != "CRD-1" {
-		t.Fatalf("row name = %q, want it unchanged at CRD-1", after.rows[0].name)
+	if after.rows[0].name != "WAYF-1" {
+		t.Fatalf("row name = %q, want it unchanged at WAYF-1", after.rows[0].name)
 	}
 
-	if a := after.assignments["/w/a"]; a.Name != "CRD-1" || a.Source != group.SourceJira {
+	if a := after.assignments["/w/a"]; a.Name != "WAYF-1" || a.Source != group.SourceJira {
 		t.Fatalf("assignment changed by a rename: %+v", a)
 	}
 
-	if got := after.store.Labels()["CRD-1"]; got != "Checkout redesign" {
+	if got := after.store.Labels()["WAYF-1"]; got != "Checkout redesign" {
 		t.Fatalf("label not persisted to the store: %q", got)
 	}
 }
@@ -129,7 +129,7 @@ func TestRenameEscLeavesTheHeaderUnchanged(t *testing.T) {
 		t.Fatalf("mode = %v, want modeBrowse", after.mode)
 	}
 
-	if got := after.rows[0].displayName(); got != "CRD-1" {
+	if got := after.rows[0].displayName(); got != "WAYF-1" {
 		t.Fatalf("header = %q, want it unchanged", got)
 	}
 
@@ -141,7 +141,7 @@ func TestRenameEscLeavesTheHeaderUnchanged(t *testing.T) {
 func TestRenameEmptyClearsAnExistingLabel(t *testing.T) {
 	m := renameModel(t)
 
-	if err := m.store.SetLabel("CRD-1", "Checkout redesign"); err != nil {
+	if err := m.store.SetLabel("WAYF-1", "Checkout redesign"); err != nil {
 		t.Fatalf("set label: %v", err)
 	}
 
@@ -151,11 +151,11 @@ func TestRenameEmptyClearsAnExistingLabel(t *testing.T) {
 	next, _ := renaming.updateRenamePrompt(tea.KeyMsg{Type: tea.KeyEnter})
 	after := next.(Model)
 
-	if got := after.rows[0].displayName(); got != "CRD-1" {
+	if got := after.rows[0].displayName(); got != "WAYF-1" {
 		t.Fatalf("header = %q, want it reset to the resolved name", got)
 	}
 
-	if _, ok := after.store.Labels()["CRD-1"]; ok {
+	if _, ok := after.store.Labels()["WAYF-1"]; ok {
 		t.Fatal("an empty rename should have cleared the stored label")
 	}
 }

@@ -106,7 +106,7 @@ func AggregatePR(states []PRState) PRState {
 }
 
 // prKey identifies a branch across repositories. Branch names repeat between
-// repos — CRD-20226 exists in three — so the repository has to be part of it.
+// repos — WAYF-20226 exists in three — so the repository has to be part of it.
 func prKey(slug, branch string) string { return slug + "\x00" + branch }
 
 // repoSlug turns a repository's origin remote into the OWNER/REPO form that
