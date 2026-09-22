@@ -3,6 +3,12 @@
 All notable changes to Wayfindr are recorded here, one entry per plugin
 version (`herdr-plugin.toml`'s `version` field), newest first.
 
+## [0.18.0] - 2026-09-22
+
+### Added
+
+- Right-click "Delete All" context menu option on feature groups to remove all member worktrees with strict principal/master/main branch protection and confirmation dialog.
+
 ## [0.17.0] - 2026-09-22
 
 ### Added

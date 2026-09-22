@@ -422,7 +422,7 @@ func TestMenuItemsForAGroupHeaderInTheList(t *testing.T) {
 		labels = append(labels, item.label)
 	}
 
-	want := []string{"Open", "Rename", "Fold"}
+	want := []string{"Open", "Rename", "Fold", "Delete All"}
 	if len(labels) != len(want) {
 		t.Fatalf("items = %v, want %v", labels, want)
 	}
@@ -472,12 +472,12 @@ func TestMenuHighlightDoesNotWalkPastTheLastItem(t *testing.T) {
 	m := clickable(20)
 	m = rightClick(m, 10, m.contentTop())
 
-	// Only three items for a group header in the list — the highlight must
+	// Four items for a group header in the list — the highlight must
 	// clamp rather than run off the end.
-	after := down(down(down(down(m))))
+	after := down(down(down(down(down(m)))))
 
-	if after.menuCursor != 2 {
-		t.Fatalf("menuCursor = %d, want it clamped to 2", after.menuCursor)
+	if after.menuCursor != 3 {
+		t.Fatalf("menuCursor = %d, want it clamped to 3", after.menuCursor)
 	}
 }
 

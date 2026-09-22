@@ -44,6 +44,7 @@ const (
 	modeTag
 	modeRename
 	modeMenu
+	modeConfirmDelete
 )
 
 // view is how the pane draws: a grouped list, or a grid of cards. Both are
@@ -73,6 +74,12 @@ type prMsg struct {
 type actionMsg struct {
 	note string
 	err  error
+}
+
+type deleteResultMsg struct {
+	group   string
+	deleted int
+	errors  []string
 }
 
 type resizedMsg struct{ err error }
@@ -121,6 +128,9 @@ type Model struct {
 	input        string
 	tagTarget    string
 	renameTarget string
+
+	deleteTargetGroup string
+	deleteTargets     []*collect.Worktree
 
 	// menuCursor is the highlighted item in the right-click menu. It always
 	// starts at 0: the menu is built fresh from whatever was clicked, and there
@@ -243,6 +253,9 @@ func (m *Model) claimRightClick() tea.Cmd {
 // happens here, never in View.
 func (m Model) refresh(withGit bool) tea.Cmd {
 	collector := m.collector
+	if collector == nil {
+		return nil
+	}
 
 	return func() tea.Msg {
 		ctx, cancel := context.WithTimeout(context.Background(), callTime)
@@ -311,6 +324,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return m, nil
 
+	case deleteResultMsg:
+		m.busy = false
+
+		if len(msg.errors) > 0 {
+			m.errNote = fmt.Sprintf("deleted %d of %d: %s", msg.deleted, msg.deleted+len(msg.errors), strings.Join(msg.errors, "; "))
+		} else {
+			m.note = fmt.Sprintf("deleted %s in %s", plural(msg.deleted, "worktree"), msg.group)
+			m.errNote = ""
+		}
+
+		return m, m.refresh(true)
+
 	case tea.MouseMsg:
 		return m.updateMouse(msg)
 
@@ -325,6 +350,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		if m.mode == modeMenu {
 			return m.updateMenu(msg)
+		}
+
+		if m.mode == modeConfirmDelete {
+			return m.updateConfirmDelete(msg)
 		}
 
 		if m.view == viewCards {
@@ -829,6 +858,14 @@ func (m Model) updateMouse(msg tea.MouseMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 
+	if m.mode == modeConfirmDelete && msg.Action == tea.MouseActionPress {
+		m.mode = modeBrowse
+		m.deleteTargets = nil
+		m.deleteTargetGroup = ""
+
+		return m, nil
+	}
+
 	// The tag prompt owns the pane while it is up; a stray click must not move
 	// the row it is about to write to.
 	if m.mode != modeBrowse || msg.Action != tea.MouseActionPress {
@@ -966,6 +1003,7 @@ const (
 	menuPin
 	menuFold
 	menuRename
+	menuDeleteAll
 )
 
 // menuItem is one line of the right-click menu.
@@ -1006,6 +1044,10 @@ func (m Model) menuItems() []menuItem {
 			}
 
 			items = append(items, menuItem{label: label, action: menuFold})
+		}
+
+		if cur.name != ungroupedLabel && cur.members > 0 {
+			items = append(items, menuItem{label: "Delete All", action: menuDeleteAll})
 		}
 	}
 
@@ -1098,6 +1140,9 @@ func (m Model) runMenuItem(action menuAction) (tea.Model, tea.Cmd) {
 
 	case menuRename:
 		next = m.startRename()
+
+	case menuDeleteAll:
+		next = m.startDeleteAll()
 	}
 
 	return next, tea.Batch(cmd, tea.EnableMouseCellMotion)
@@ -1638,6 +1683,159 @@ func (m Model) updateRenamePrompt(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	}
 
 	return m, nil
+}
+
+// groupMembers answers every worktree that belongs to the given group name.
+func (m Model) groupMembers(groupName string) []*collect.Worktree {
+	var members []*collect.Worktree
+	for i := range m.world.Worktrees {
+		wt := &m.world.Worktrees[i]
+		name := m.assignments[wt.Path].Name
+		if name == "" {
+			name = ungroupedLabel
+		}
+		if name == groupName {
+			members = append(members, wt)
+		}
+	}
+
+	return members
+}
+
+// startDeleteAll evaluates a group for deletion. If any member is a principal,
+// master, or main branch, or a primary checkout, deletion is aborted immediately.
+// Otherwise, it transitions to modeConfirmDelete to request confirmation.
+func (m Model) startDeleteAll() Model {
+	cur, ok := m.current()
+	if !ok || cur.kind != rowGroup {
+		m.errNote = "select a group to delete"
+
+		return m
+	}
+
+	if cur.name == ungroupedLabel {
+		m.errNote = "cannot delete ungrouped worktrees"
+
+		return m
+	}
+
+	members := m.groupMembers(cur.name)
+	if len(members) == 0 {
+		m.errNote = "no worktrees in " + cur.displayName()
+
+		return m
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), callTime)
+	defer cancel()
+
+	// Strict Abort: Check each member. If ANY is protected or principal, abort entirely.
+	for _, wt := range members {
+		if protected, reason := collect.IsProtectedWorktree(ctx, wt, m.cfg.Grouping.PrincipalBranches); protected {
+			m.errNote = fmt.Sprintf("cannot delete %s: contains protected branch %s (%s)", cur.displayName(), wt.Branch, reason)
+
+			return m
+		}
+	}
+
+	m.mode = modeConfirmDelete
+	m.deleteTargetGroup = cur.name
+	m.deleteTargets = members
+	m.errNote = ""
+
+	return m
+}
+
+func (m Model) updateConfirmDelete(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "y", "Y", "enter":
+		targets := m.deleteTargets
+		groupName := m.deleteTargetGroup
+
+		m.mode = modeBrowse
+		m.deleteTargets = nil
+		m.deleteTargetGroup = ""
+		m.note = fmt.Sprintf("deleting %s in %s...", plural(len(targets), "worktree"), groupName)
+		m.errNote = ""
+
+		return m, m.deleteGroupWorktrees(targets, groupName)
+
+	case "n", "N", "esc", "ctrl+c":
+		m.mode = modeBrowse
+		m.deleteTargets = nil
+		m.deleteTargetGroup = ""
+		m.errNote = ""
+
+		return m, nil
+	}
+
+	return m, nil
+}
+
+func (m Model) deleteGroupWorktrees(targets []*collect.Worktree, groupName string) tea.Cmd {
+	client := m.client
+	principalBranches := m.cfg.Grouping.PrincipalBranches
+	store := m.store
+
+	wts := make([]collect.Worktree, 0, len(targets))
+	for _, wt := range targets {
+		if wt != nil {
+			wts = append(wts, *wt)
+		}
+	}
+
+	return func() tea.Msg {
+		ctx, cancel := context.WithTimeout(context.Background(), callTime)
+		defer cancel()
+
+		var (
+			deleted int
+			errs    []string
+		)
+
+		for _, wt := range wts {
+			// Defense in depth: Verify protection once again before deleting
+			if protected, reason := collect.IsProtectedWorktree(ctx, &wt, principalBranches); protected {
+				errs = append(errs, fmt.Sprintf("%s: skipped protected branch (%s)", wt.RepoName, reason))
+
+				continue
+			}
+
+			// If open in Herdr and client is available, request removal via Herdr socket
+			if wt.Open() && client != nil {
+				if err := herdr.RemoveWorktree(ctx, client, wt.WorkspaceID, true); err != nil {
+					errs = append(errs, fmt.Sprintf("%s: %v", wt.RepoName, err))
+
+					continue
+				}
+				deleted++
+
+				if store != nil {
+					_ = store.Set(wt.Path, "")
+				}
+
+				continue
+			}
+
+			// Not open in Herdr, or client unavailable: remove via git worktree remove
+			if err := collect.RemoveGitWorktree(ctx, wt.RepoRoot, wt.Path, true); err != nil {
+				errs = append(errs, fmt.Sprintf("%s: %v", wt.RepoName, err))
+
+				continue
+			}
+			deleted++
+
+			if store != nil {
+				_ = store.Set(wt.Path, "")
+			}
+		}
+
+		return deleteResultMsg{
+			group:   groupName,
+			deleted: deleted,
+			errors:  errs,
+		}
+	}
 }
 
 func nonEmpty(first, second string) string {
