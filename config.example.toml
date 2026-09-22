@@ -77,10 +77,10 @@ singleton = true
 [pr]
 # Ask GitHub whether each worktree's branch has a pull request, and label each
 # group open, merged or closed in GitHub's own colours — merged only once every
-# one of its worktrees is. Costs one `gh pr list` per branch on each refresh,
+# one of its worktrees is. Costs a network call per branch on each refresh,
 # so it runs after the list is already on screen.
-# Needs gh on the system and logged in; a repository whose origin is not GitHub
-# is never asked about.
+# Requires GITHUB_TOKEN, GH_TOKEN, or a git credential helper; a repository
+# whose origin is not GitHub is never asked about.
 enabled = true
 
 [tokens]

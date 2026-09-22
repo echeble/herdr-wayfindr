@@ -2,7 +2,7 @@
 
 ![Go](https://img.shields.io/badge/go-1.24%2B-00ADD8.svg)
 ![herdr 0.9.0+](https://img.shields.io/badge/herdr-0.9.0%2B-8a2be2)
-![wayfindr v0.18.0](https://img.shields.io/badge/wayfindr-v0.18.0-blue)
+![wayfindr v0.19.0](https://img.shields.io/badge/wayfindr-v0.19.0-blue)
 ![platforms: linux, macOS](https://img.shields.io/badge/platforms-linux%2C%20macOS-informational)
 
 **Group worktrees across every workspace, not just within one repository.** A [Herdr](https://herdr.dev)
@@ -94,8 +94,8 @@ distinct repository, groups the results, and draws either presentation:
 └────┬───────┘
      │
 ┌────┴────┬─────────┬────────┐
-│  herdr  │   git    │ gh/jq │
-└─────────┴──────────┴────────┘
+│  herdr  │   git   │ GitHub │
+└─────────┴─────────┴────────┘
 ```
 
 - **Collection** calls Herdr's `worktree.list` once per distinct `repo_root` found in the session —
@@ -103,7 +103,7 @@ distinct repository, groups the results, and draws either presentation:
   pattern, shared name) and the current sort.
 - **Drawing** happens once on open and again on `r`; there is no background loop and no event
   subscription (see [Notes for anyone hacking on it](#notes-for-anyone-hacking-on-it)).
-- **Pull-request state** is a second pass behind the first paint: one `gh pr list` per branch, with
+- **Pull-request state** is a second pass behind the first paint: a GitHub GraphQL query per branch, with
   merged answers cached for the life of the pane.
 
 ## Two views
@@ -292,7 +292,7 @@ Then `herdr server reload-config`.
 - Herdr 0.9.0 or newer (socket protocol as shipped in that release)
 - Go 1.24+ to build
 - `jq` and `git` on the system (macOS and Linux)
-- `gh`, logged in, for the `merged` marker — without it everything else still
+- `GITHUB_TOKEN`, `GH_TOKEN`, or a `git credential` helper for the `merged` marker — without it everything else still
   works and no group is ever marked
 
 `plugin link` does not run the build step, so build first:
@@ -659,10 +659,10 @@ and it arrives coloured by the font rather than by the palette. Fonts without
 
 `merged` needs every member, and one the plugin could not ask about is enough
 to withhold it — a branch with no pull request, a repository that is not on
-GitHub, a `gh` that is not logged in. The marker means the work has landed; it
+GitHub, or an unauthenticated session. The marker means the work has landed; it
 must never mean "probably". Where nothing is known, nothing is drawn.
 
-This costs one `gh pr list` per branch, so it runs as a second pass *after* the
+This costs a GraphQL query per branch, so it runs as a second pass *after* the
 list is on screen rather than holding the first paint: the rows appear, the
 footer says `checking pull requests…`, and the states arrive a few seconds
 later. Merged answers are remembered for the life of the pane — a merge cannot
@@ -797,7 +797,7 @@ The interesting ones:
   menu. On by default, and independent of `pane.mouse`.
 - `pane.singleton` — opening the sidebar closes the ones left in other
   workspaces. On by default.
-- `pr.enabled` — the pull-request state and the `gh` calls behind it. On by
+- `pr.enabled` — the pull-request state and the GitHub queries behind it. On by
   default.
 - `tokens.enabled` / `tokens.name` — the `$group` token on Herdr's sidebar.
 

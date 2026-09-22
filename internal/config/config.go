@@ -118,8 +118,8 @@ type Tokens struct {
 	Name string `json:"name" toml:"name"`
 }
 
-// PR controls the pull-request lookup behind the "merged" marker. It costs one
-// `gh pr list` per branch on every full refresh, so it is worth a switch.
+// PR controls the pull-request lookup behind the "merged" marker. It costs a
+// GraphQL query per branch on every full refresh, so it is worth a switch.
 type PR struct {
 	Enabled bool `json:"enabled" toml:"enabled"`
 }
