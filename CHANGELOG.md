@@ -3,6 +3,19 @@
 All notable changes to Wayfindr are recorded here, one entry per plugin
 version (`herdr-plugin.toml`'s `version` field), newest first.
 
+## [0.16.0] - 2026-09-22
+
+### Added
+
+- Configurable `hide_principal_branches` (default `true`) and `principal_branches` list in `[grouping]` config.
+
+### Changed
+
+- Exclude repository principal branches (`main`, `master`, and detected default branches) from the Ungrouped folder and cards when unmatched.
+- Prevent tagging and pinning principal branches via TUI (`t`/`p`/context menu) and CLI (`--tag`).
+- Ignore explicit tags on principal branches during feature resolution.
+- Prevent shared worktree name grouping from creating feature groups for principal branches (`master`/`main`).
+
 ## [0.15.0] - 2026-09-17
 
 ### Added

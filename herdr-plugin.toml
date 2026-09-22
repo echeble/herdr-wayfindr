@@ -1,6 +1,6 @@
 id = "echeble.wayfindr"
 name = "Wayfindr"
-version = "0.15.1"
+version = "0.16.0"
 min_herdr_version = "0.9.0"
 description = "Group worktrees from different workspaces by feature — explicit tag, ticket key, branch pattern or shared name — in a sidebar pane."
 platforms = ["macos", "linux"]
