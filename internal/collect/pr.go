@@ -332,7 +332,7 @@ func lookupPR(ctx context.Context, client *http.Client, token, host, owner, repo
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("User-Agent", "wayfindr")
+	httpReq.Header.Set("User-Agent", "herdr-wayfindr")
 	if token != "" {
 		httpReq.Header.Set("Authorization", "Bearer "+token)
 	}

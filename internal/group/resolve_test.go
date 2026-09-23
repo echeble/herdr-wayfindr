@@ -66,7 +66,7 @@ func TestResolveTicketKeyFromWorkspaceName(t *testing.T) {
 		{"master in a ticket workspace", "master", "wayf-20764", "WAYF-20764"},
 		{"detached in a ticket workspace", "", "WAYF-20764", "WAYF-20764"},
 		{"suffixed workspace name", "master", "wayf-20226_remove_fields", "WAYF-20226"},
-		{"no key anywhere", "master", "wayfindr", ""},
+		{"no key anywhere", "master", "herdr-wayfindr", ""},
 		{"no workspace open", "master", "", ""},
 	}
 

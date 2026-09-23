@@ -24,7 +24,7 @@ PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:${PATH:-}"
 export PATH
 
 H="${HERDR_BIN_PATH:-herdr}"
-PLUGIN_ID="${HERDR_PLUGIN_ID:-echeble.wayfindr}"
+PLUGIN_ID="${HERDR_PLUGIN_ID:-echeble.herdr-wayfindr}"
 PLUGIN_ROOT="${HERDR_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 ENTRYPOINT="sidebar"
 BIN_NAME="herdr-wayfindr"
@@ -33,7 +33,7 @@ BIN="$PLUGIN_ROOT/bin/$BIN_NAME"
 mode="${1:-toggle}"
 
 die() {
-  echo "wayfindr: $1" >&2
+  echo "herdr-wayfindr: $1" >&2
   exit 1
 }
 

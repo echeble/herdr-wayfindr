@@ -3,6 +3,12 @@
 All notable changes to Wayfindr are recorded here, one entry per plugin
 version (`herdr-plugin.toml`'s `version` field), newest first.
 
+## [0.21.0] - 2026-09-22
+
+### Changed
+
+- Renamed all occurrences of `wayfindr` identifier to `herdr-wayfindr` across plugin ID, configuration paths, CLI commands, documentation, web pages, and badges.
+
 ## [0.20.0] - 2026-09-22
 
 ### Added

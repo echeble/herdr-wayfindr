@@ -193,9 +193,9 @@ def main():
     if os.path.exists(readme_path):
         with open(readme_path, "r", encoding="utf-8") as f:
             readme_content = f.read()
-        badge_pattern = rf"badge/wayfindr-v{re.escape(head_version_str)}-blue"
+        badge_pattern = rf"badge/herdr-wayfindr-v{re.escape(head_version_str)}-blue"
         if not re.search(badge_pattern, readme_content):
-            err = f"README.md version badge does not match herdr-plugin.toml version ({head_version_str}). Expected badge: 'wayfindr-v{head_version_str}'."
+            err = f"README.md version badge does not match herdr-plugin.toml version ({head_version_str}). Expected badge: 'herdr-wayfindr-v{head_version_str}'."
             errors.append(err)
             emit_github("error", err, file="README.md")
     else:

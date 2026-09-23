@@ -62,7 +62,7 @@ func main() {
 		workspace:     *workspace,
 		args:          flag.Args(),
 	}); err != nil {
-		fmt.Fprintln(os.Stderr, "wayfindr: "+err.Error())
+		fmt.Fprintln(os.Stderr, "herdr-wayfindr: "+err.Error())
 		os.Exit(1)
 	}
 }
@@ -125,7 +125,7 @@ func runList(cfg config.Config) error {
 	}
 
 	for _, line := range world.Errors {
-		fmt.Fprintln(os.Stderr, "wayfindr: "+line)
+		fmt.Fprintln(os.Stderr, "herdr-wayfindr: "+line)
 	}
 
 	byGroup := map[string][]collect.Worktree{}

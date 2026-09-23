@@ -7,7 +7,7 @@ Wayfindr is a Go-based [Herdr](https://herdr.dev) plugin that collects Git workt
 ## 1. Architecture & Directory Map
 
 ```text
-wayfindr/
+herdr-wayfindr/
 ├── cmd/
 │   └── herdr-wayfindr/
 │       └── main.go           # CLI entrypoint; routes between TUI pane and one-shot flags
@@ -16,7 +16,7 @@ wayfindr/
 │   │   ├── collect.go        # Fan-out collector across distinct repo roots; agent state aggregation
 │   │   ├── git.go            # git status --porcelain=v2 --branch parsing; hardened PATH lookup
 │   │   └── pr.go             # GitHub GraphQL PR inspection; AggregatePR logic; merged PR cache
-│   ├── config/               # TOML config loader (~/.config/herdr/plugins/config/echeble.wayfindr/)
+│   ├── config/               # TOML config loader (~/.config/herdr/plugins/config/echeble.herdr-wayfindr/)
 │   │   └── config.go         # Defaults, fallback validation, JSON serialization for pane.sh
 │   ├── group/                # Pure business logic: feature grouping resolver
 │   │   └── resolve.go        # Rule precedence: Tag -> Ticket -> Pattern -> Shared Name -> Ungrouped
@@ -25,7 +25,7 @@ wayfindr/
 │   │   ├── types.go          # Snapshot, Workspace, Worktree, Pane, Agent structs
 │   │   ├── layout.go         # Pane layout inspection, split tree parsing, set_split_ratio
 │   │   └── input.go          # pane.input.set routing (claims right-click from Herdr chrome)
-│   ├── store/                # JSON persistence in ~/.local/state/herdr/plugins/echeble.wayfindr/
+│   ├── store/                # JSON persistence in ~/.local/state/herdr/plugins/echeble.herdr-wayfindr/
 │   │   ├── store.go          # groups.json: explicit tags (path -> tag) and header renames (name -> label)
 │   │   └── prefs.go          # ui.json: last active view ("list"|"cards") and sort order
 │   ├── tokens/               # Herdr sidebar token reporting
@@ -120,7 +120,7 @@ go build -o bin/herdr-wayfindr ./cmd/herdr-wayfindr
 go test ./...
 
 # Link plugin to local Herdr installation
-herdr plugin link ~/wayfindr
+herdr plugin link ~/herdr-wayfindr
 ```
 
 ### CLI Flag Operations
