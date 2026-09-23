@@ -550,7 +550,7 @@
             border-radius: 4px;
         }
 
-        /* ── Herdr Window Chrome Bar ── */
+        /* ── Herdr Window Chrome Bar (Row 1) ── */
         .herdr-window-bar {
             display: flex;
             align-items: center;
@@ -561,7 +561,7 @@
             font-family: var(--mono);
             font-size: 13.5px;
             gap: 12px;
-            flex-wrap: wrap;
+            min-height: 40px;
         }
 
         .window-left-group {
@@ -607,13 +607,34 @@
             color: var(--spot);
         }
 
+        .window-right-meta {
+            display: flex;
+            align-items: center;
+            color: var(--term-dim);
+            font-size: 12px;
+            letter-spacing: .04em;
+        }
+
+        /* ── Static Second Row: Helper Buttons Toolbar (Row 2) ── */
+        .herdr-toolbar-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 14px;
+            background: color-mix(in srgb, var(--term-panel) 80%, var(--term-bg));
+            border-bottom: 1px solid var(--term-border);
+            font-family: var(--mono);
+            font-size: 13.5px;
+            gap: 14px;
+            min-height: 42px;
+        }
+
         .tui-toolbar {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             font-family: var(--mono);
             font-size: 13.5px;
-            flex-wrap: wrap;
         }
 
         .tui-switch-group {
@@ -660,6 +681,19 @@
         .tui-hint {
             color: var(--term-dim);
             font-size: 13px;
+            margin-left: auto;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 960px) {
+            .herdr-toolbar-row {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .tui-hint {
+                margin-left: 0;
+                width: 100%;
+            }
         }
 
         /* ── Workspace 3-Column Layout ── */
@@ -1816,7 +1850,7 @@
         </div>
 
         <div class="plate" id="interactive-tui">
-            <!-- ── Herdr Window Chrome Bar ── -->
+            <!-- ── 1. Herdr Window Title Bar (Row 1) ── -->
             <div class="herdr-window-bar">
                 <div class="window-left-group">
                     <div class="window-controls">
@@ -1832,8 +1866,13 @@
                         <span class="pill" id="window-crumb-branch">worktree-WAYF-20748</span>
                     </div>
                 </div>
+                <div class="window-right-meta">
+                    <span>wayfindr preview</span>
+                </div>
+            </div>
 
-                <!-- TUI Control Toolbar -->
+            <!-- ── 2. Helper Toolbar (Static Row 2 below Window Title) ── -->
+            <div class="herdr-toolbar-row">
                 <div class="tui-toolbar">
                     <div class="tui-switch-group">
                         <button type="button" class="tui-switch-btn active" id="btn-view-list" data-view="list">List (v)</button>
@@ -1849,10 +1888,10 @@
                     <button type="button" class="tui-sort-btn" id="btn-demo-ctx">
                         Right-Click Menu
                     </button>
+                </div>
 
-                    <div class="tui-hint">
-                        <span id="tui-hint-text">Click row to select · Space to fold/unfold</span>
-                    </div>
+                <div class="tui-hint">
+                    <span id="tui-hint-text">Click row to select · Space to fold/unfold</span>
                 </div>
             </div>
 
