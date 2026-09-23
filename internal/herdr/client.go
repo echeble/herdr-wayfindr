@@ -92,7 +92,7 @@ func (c *SocketClient) Call(ctx context.Context, method string, params any, resu
 		Method string `json:"method"`
 		Params any    `json:"params"`
 	}{
-		ID:     fmt.Sprintf("wayfindr-%d", c.seq.Add(1)),
+		ID:     fmt.Sprintf("herdr-wayfindr-%d", c.seq.Add(1)),
 		Method: method,
 		Params: params,
 	}

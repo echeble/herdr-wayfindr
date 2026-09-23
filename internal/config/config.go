@@ -17,7 +17,7 @@ import (
 
 // PluginID is the manifest id. It namespaces the metadata tokens this plugin
 // reports and is the prefix of every action a user binds a key to.
-const PluginID = "echeble.wayfindr"
+const PluginID = "echeble.herdr-wayfindr"
 
 // Defaults. JiraPattern finds a ticket key anywhere in a branch name, which is
 // how one feature is already spelled across repositories: WAYF-20748,

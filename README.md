@@ -2,12 +2,12 @@
 
 ![Go](https://img.shields.io/badge/go-1.24%2B-00ADD8.svg)
 ![herdr 0.9.0+](https://img.shields.io/badge/herdr-0.9.0%2B-8a2be2)
-![wayfindr v0.20.0](https://img.shields.io/badge/wayfindr-v0.20.0-blue)
+![herdr-wayfindr v0.21.0](https://img.shields.io/badge/herdr-wayfindr-v0.21.0-blue)
 ![platforms: linux, macOS](https://img.shields.io/badge/platforms-linux%2C%20macOS-informational)
 
 **Group Git worktrees across distinct workspaces and repositories by feature rather than by repository.** A [Herdr](https://herdr.dev) plugin that brings scattered microservice checkouts, ticket branches, and agent statuses together into a cohesive sidebar pane.
 
-👉 **Interactive Simulator & Documentation:** [`docs/index.html`](docs/index.html) (or visit [echeble.github.io/wayfindr](https://echeble.github.io/wayfindr/))
+👉 **Interactive Simulator & Documentation:** [`docs/index.html`](docs/index.html) (or visit [echeble.github.io/herdr-wayfindr](https://echeble.github.io/herdr-wayfindr/))
 
 ---
 
@@ -28,13 +28,13 @@
 ### 1. Install Plugin
 
 ```bash
-herdr plugin install echeble/wayfindr
+herdr plugin install echeble/herdr-wayfindr
 ```
 
 Open the sidebar pane:
 
 ```bash
-herdr plugin action invoke toggle --plugin echeble.wayfindr
+herdr plugin action invoke toggle --plugin echeble.herdr-wayfindr
 ```
 
 ### 2. Configure Global Keybinding
@@ -45,7 +45,7 @@ Add to `~/.config/herdr/config.toml` to toggle the feature sidebar from anywhere
 [[keys.command]]
 key = "cmd+shift+f"
 type = "plugin_action"
-command = "echeble.wayfindr.toggle"
+command = "echeble.herdr-wayfindr.toggle"
 description = "toggle the feature sidebar"
 ```
 
@@ -117,7 +117,7 @@ Features are resolved deterministically using the first matching rule:
 
 ## Configuration
 
-Optional. To customize defaults, copy [`config.example.toml`](config.example.toml) to `~/.config/herdr/plugins/config/echeble.wayfindr/config.toml`:
+Optional. To customize defaults, copy [`config.example.toml`](config.example.toml) to `~/.config/herdr/plugins/config/echeble.herdr-wayfindr/config.toml`:
 
 ```toml
 [pane]
@@ -159,8 +159,8 @@ herdr-wayfindr --report-tokens               # Push $group metadata tokens to He
 
 ```bash
 # Clone repository
-git clone https://github.com/echeble/wayfindr ~/wayfindr
-cd ~/wayfindr
+git clone https://github.com/echeble/herdr-wayfindr ~/herdr-wayfindr
+cd ~/herdr-wayfindr
 
 # Build CLI & plugin binary
 go build -o bin/herdr-wayfindr ./cmd/herdr-wayfindr
@@ -169,8 +169,8 @@ go build -o bin/herdr-wayfindr ./cmd/herdr-wayfindr
 go test ./...
 
 # Link plugin to local Herdr installation
-herdr plugin link ~/wayfindr
-herdr plugin list --plugin echeble.wayfindr --json
+herdr plugin link ~/herdr-wayfindr
+herdr plugin list --plugin echeble.herdr-wayfindr --json
 ```
 
 ---

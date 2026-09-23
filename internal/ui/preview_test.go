@@ -35,7 +35,7 @@ func TestPreview(t *testing.T) {
 		seq(pr(wt("/w/b", "marketplace-catalog-service", "worktree-WAYF-20748", "w2", herdr.StatusBlocked), collect.PRMerged), 10),
 		pr(wt("/w/c", "k8s-template", "WAYF-20748", "", herdr.StatusUnknown), collect.PRNone),
 		seq(pr(wt("/w/d", "credit-report-srvc", "WAYF-20099", "w4", herdr.StatusDone), collect.PRMerged), 90),
-		seq(wt("/w/e", "wayfindr", "0.8.0", "w5", herdr.StatusIdle), 70),
+		seq(wt("/w/e", "herdr-wayfindr", "0.8.0", "w5", herdr.StatusIdle), 70),
 	)
 
 	assignments := assign(map[string]group.Assignment{

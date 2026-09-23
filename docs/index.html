@@ -28,7 +28,7 @@
         window.wayfindrGround = {
             read: function () {
                 try {
-                    var saved = localStorage.getItem("wayfindr-theme") || localStorage.getItem("starlight-theme");
+                    var saved = localStorage.getItem("herdr-wayfindr-theme") || localStorage.getItem("starlight-theme");
                     return saved === "light" || saved === "paper" ? "paper" : "ink";
                 } catch (e) {
                     return "ink";
@@ -42,7 +42,7 @@
             },
             save: function (mode) {
                 try {
-                    localStorage.setItem("wayfindr-theme", mode);
+                    localStorage.setItem("herdr-wayfindr-theme", mode);
                     localStorage.setItem("starlight-theme", mode === "paper" ? "light" : "dark");
                 } catch (e) {}
             }
@@ -921,7 +921,7 @@
         }
 
         /* ── 2. Middle Wayfindr Pane Wrapper ── */
-        .wayfindr-pane-wrapper {
+        .herdr-wayfindr-pane-wrapper {
             border-right: 1px solid var(--term-border);
             display: flex;
             flex-direction: column;
@@ -930,7 +930,7 @@
             position: relative;
         }
 
-        .wayfindr-pane-wrapper .tui-screen {
+        .herdr-wayfindr-pane-wrapper .tui-screen {
             flex: 1;
             overflow-y: auto;
             max-height: 600px;
@@ -1726,8 +1726,8 @@
                 <polygon points="12 2 15 9 22 12 15 15 12 22 9 15 2 12 9 9" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="1.6" />
                 <circle cx="12" cy="12" r="2.2" fill="currentColor" />
             </svg>
-            <b>wayfindr</b>
-            <span class="version-tag">v0.20.0</span>
+            <b>herdr-wayfindr</b>
+            <span class="version-tag">v0.21.0</span>
         </a>
         <div class="sp"></div>
         <a class="lnk" href="#overview">Overview</a>
@@ -1739,7 +1739,7 @@
         <a class="lnk" href="#install">Install</a>
         
         <div class="social-links">
-            <a class="ico wide" href="https://github.com/echeble/wayfindr" target="_blank" rel="noopener noreferrer" aria-label="Wayfindr on GitHub">
+            <a class="ico wide" href="https://github.com/echeble/herdr-wayfindr" target="_blank" rel="noopener noreferrer" aria-label="Wayfindr on GitHub">
                 <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.64 7.64 0 0 1 8 3.87c.68 0 1.36.09 2 .26 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z" /></svg>
                 <span>GitHub</span>
             </a>
@@ -1769,7 +1769,7 @@
         <a href="#rules">Rules</a>
         <a href="#controls">Keys</a>
         <a href="#install">Install</a>
-        <a href="https://github.com/echeble/wayfindr" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
+        <a href="https://github.com/echeble/herdr-wayfindr" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
         <div class="sheet-ground">
             <span>Ground Theme</span>
             <div class="mode">
@@ -1799,7 +1799,7 @@
             </p>
             <div class="go">
                 <div class="hd-cmd">
-                    <code id="hero-cmd"><b>$</b>herdr plugin install echeble/wayfindr</code>
+                    <code id="hero-cmd"><b>$</b>herdr plugin install echeble/herdr-wayfindr</code>
                     <button type="button" class="copy-action-btn" data-target="hero-cmd" aria-label="Copy install command">copy</button>
                 </div>
             </div>
@@ -1867,7 +1867,7 @@
                     </div>
                 </div>
                 <div class="window-right-meta">
-                    <span>wayfindr preview</span>
+                    <span>herdr-wayfindr preview</span>
                 </div>
             </div>
 
@@ -1909,15 +1909,15 @@
                             <span class="h-name">code</span>
                         </div>
 
-                        <div class="h-repo-group" data-repo="wayfindr">
+                        <div class="h-repo-group" data-repo="herdr-wayfindr">
                             <div class="h-repo-row">
                                 <span class="h-dot">·</span>
-                                <span class="h-name">wayfindr</span>
+                                <span class="h-name">herdr-wayfindr</span>
                                 <span class="h-arr">▾</span>
                             </div>
                             <div class="h-sub-tree">
                                 <div class="h-branch-label">master</div>
-                                <div class="h-wt-row active" data-repo="wayfindr" data-branch="0.20.0">
+                                <div class="h-wt-row active" data-repo="herdr-wayfindr" data-branch="0.20.0">
                                     <span class="h-branch-char">└</span>
                                     <span class="h-status-circle">○</span>
                                     <span>0.20.0</span>
@@ -2042,7 +2042,7 @@
                 </aside>
 
                 <!-- 2. Middle: Wayfindr Sidebar Pane Wrapper -->
-                <div class="wayfindr-pane-wrapper">
+                <div class="herdr-wayfindr-pane-wrapper">
                     <!-- TUI Screen Canvas -->
                     <div class="tui-screen" id="tui-screen-canvas" tabindex="0" aria-label="Interactive Wayfindr TUI pane">
                 <!-- Context Menu Overlay -->
@@ -2272,7 +2272,7 @@
                 <span>·</span>
                 <span><span class="legend-key">r</span> refresh</span>
             </div>
-        </div> <!-- /wayfindr-pane-wrapper -->
+        </div> <!-- /herdr-wayfindr-pane-wrapper -->
 
         <!-- 3. Right: Terminal Workspace Panel -->
         <aside class="herdr-terminal-panel" aria-label="Herdr Active Terminal Workspace">
@@ -2489,7 +2489,7 @@
             </div>
             <div class="ev">
                 <div class="tape">
-                    <b>$</b><span data-tape>wayfindr --list</span>
+                    <b>$</b><span data-tape>herdr-wayfindr --list</span>
                 </div>
             </div>
         </div>
@@ -2640,7 +2640,7 @@
 
             <div class="go" style="margin-top: 0; margin-bottom: 28px;">
                 <div class="hd-cmd">
-                    <code id="install-cmd-main"><b>$</b>herdr plugin install echeble/wayfindr</code>
+                    <code id="install-cmd-main"><b>$</b>herdr plugin install echeble/herdr-wayfindr</code>
                     <button type="button" class="copy-action-btn" data-target="install-cmd-main">copy</button>
                 </div>
             </div>
@@ -2655,12 +2655,12 @@
                     <button type="button" class="copy-code-btn" data-clipboard="[[keys.command]]
 key = &quot;cmd+shift+f&quot;
 type = &quot;plugin_action&quot;
-command = &quot;echeble.wayfindr.toggle&quot;
+command = &quot;echeble.herdr-wayfindr.toggle&quot;
 description = &quot;toggle the feature sidebar&quot;">copy</button>
 <pre><code>[[keys.command]]
 key = "cmd+shift+f"
 type = "plugin_action"
-command = "echeble.wayfindr.toggle"
+command = "echeble.herdr-wayfindr.toggle"
 description = "toggle the feature sidebar"</code></pre>
                 </div>
             </div>
@@ -2689,10 +2689,10 @@ rows = [["state_icon", "workspace"], ["branch", "git_status"], ["$group"]]</code
                     The binary functions cleanly outside the pane via Herdr's socket API:
                 </p>
                 <div class="code-block">
-<pre><code>wayfindr --list                      # Print text grouping, rules, and PR state
-wayfindr --tag WAYF-20748             # Tag focused workspace's checkout
-wayfindr --rename WAYF-20748 "Billing" # Retitle visual group header
-wayfindr --report-tokens             # Restamp $group metadata tokens in Herdr</code></pre>
+<pre><code>herdr-wayfindr --list                      # Print text grouping, rules, and PR state
+herdr-wayfindr --tag WAYF-20748             # Tag focused workspace's checkout
+herdr-wayfindr --rename WAYF-20748 "Billing" # Retitle visual group header
+herdr-wayfindr --report-tokens             # Restamp $group metadata tokens in Herdr</code></pre>
                 </div>
             </div>
 
@@ -2703,11 +2703,11 @@ wayfindr --report-tokens             # Restamp $group metadata tokens in Herdr</
                     For local development:
                 </p>
                 <div class="code-block">
-<pre><code>git clone https://github.com/echeble/wayfindr ~/wayfindr
-cd ~/wayfindr
-go build -o bin/wayfindr ./cmd/wayfindr
-herdr plugin link ~/wayfindr
-herdr plugin list --plugin echeble.wayfindr --json</code></pre>
+<pre><code>git clone https://github.com/echeble/herdr-wayfindr ~/herdr-wayfindr
+cd ~/herdr-wayfindr
+go build -o bin/herdr-wayfindr ./cmd/herdr-wayfindr
+herdr plugin link ~/herdr-wayfindr
+herdr plugin list --plugin echeble.herdr-wayfindr --json</code></pre>
                 </div>
             </div>
         </div>
@@ -2719,11 +2719,11 @@ herdr plugin list --plugin echeble.wayfindr --json</code></pre>
             <circle cx="12" cy="12" r="10" stroke-width="1.6" stroke-dasharray="2 2" />
             <polygon points="12 2 15 9 22 12 15 15 12 22 9 15 2 12 9 9" fill="currentColor" fill-opacity="0.2" stroke="currentColor" stroke-width="1.6" />
         </svg>
-        <span>wayfindr · <a href="https://herdr.dev" target="_blank" rel="noopener noreferrer">herdr plugin ecosystem</a></span>
+        <span>herdr-wayfindr · <a href="https://herdr.dev" target="_blank" rel="noopener noreferrer">herdr plugin ecosystem</a></span>
         <span>© 2026 <a href="https://github.com/echeble" target="_blank" rel="noopener noreferrer">echeble</a></span>
-        <span class="fact">v0.20.0 · MIT License</span>
+        <span class="fact">v0.21.0 · MIT License</span>
         <div class="out">
-            <a href="https://github.com/echeble/wayfindr" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://github.com/echeble/herdr-wayfindr" target="_blank" rel="noopener noreferrer">GitHub</a>
             <a href="https://herdr.dev/plugins/" target="_blank" rel="noopener noreferrer">Plugins Directory</a>
             <a href="#overview">Back to Top ↑</a>
         </div>
@@ -3379,11 +3379,11 @@ herdr plugin list --plugin echeble.wayfindr --json</code></pre>
         if (!out) return;
 
         var COMMANDS = [
-            "wayfindr --list",
-            "wayfindr --tag WAYF-20748",
-            'wayfindr --rename WAYF-20748 "Billing Redesign"',
-            "wayfindr --report-tokens",
-            "herdr plugin action invoke toggle --plugin echeble.wayfindr"
+            "herdr-wayfindr --list",
+            "herdr-wayfindr --tag WAYF-20748",
+            'herdr-wayfindr --rename WAYF-20748 "Billing Redesign"',
+            "herdr-wayfindr --report-tokens",
+            "herdr plugin action invoke toggle --plugin echeble.herdr-wayfindr"
         ];
 
         if (matchMedia("(prefers-reduced-motion: reduce)").matches) {

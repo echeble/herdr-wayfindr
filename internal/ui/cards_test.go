@@ -226,9 +226,9 @@ func TestCardNameFallsBackToTheFolder(t *testing.T) {
 	// A checkout git could not name is still somewhere, and the folder is what
 	// the user knows it by — not the whole path, which would size the card to
 	// the width of the screen.
-	r := row{kind: rowWorktree, worktree: &collect.Worktree{Path: "/Users/someone/Repo/wayfindr"}}
+	r := row{kind: rowWorktree, worktree: &collect.Worktree{Path: "/Users/someone/Repo/herdr-wayfindr"}}
 
-	if got := cardName(r); got != "wayfindr" {
+	if got := cardName(r); got != "herdr-wayfindr" {
 		t.Fatalf("name = %q, want the folder", got)
 	}
 }

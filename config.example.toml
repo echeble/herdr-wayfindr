@@ -1,7 +1,7 @@
 # Wayfindr settings.
 #
-# Copy to ~/.config/herdr/plugins/config/echeble.wayfindr/config.toml
-# (`herdr plugin config-dir echeble.wayfindr` prints the exact path).
+# Copy to ~/.config/herdr/plugins/config/echeble.herdr-wayfindr/config.toml
+# (`herdr plugin config-dir echeble.herdr-wayfindr` prints the exact path).
 # Every value below is the default, so an empty file behaves the same way.
 
 [grouping]
