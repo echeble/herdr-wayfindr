@@ -54,3 +54,34 @@ func TestWriteResolvedIncludesHidePrincipalBranches(t *testing.T) {
 		t.Errorf("WriteResolved output does not contain hide_principal_branches: %s", buf.String())
 	}
 }
+
+func TestPaneTheme(t *testing.T) {
+	cfg := Default()
+	if cfg.Pane.Theme != "auto" {
+		t.Errorf("Default().Pane.Theme = %q, want %q", cfg.Pane.Theme, "auto")
+	}
+
+	dir := t.TempDir()
+	tomlPath := filepath.Join(dir, "config.toml")
+
+	// 1. Explicit valid theme
+	if err := os.WriteFile(tomlPath, []byte("[pane]\ntheme = \"ink\"\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	loaded := LoadFile(tomlPath)
+	if loaded.Pane.Theme != "ink" {
+		t.Errorf("loaded.Pane.Theme = %q, want \"ink\"", loaded.Pane.Theme)
+	}
+
+	// 2. Invalid theme falls back with warning
+	if err := os.WriteFile(tomlPath, []byte("[pane]\ntheme = \"invalid\"\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	invalid := LoadFile(tomlPath)
+	if invalid.Pane.Theme != "auto" {
+		t.Errorf("invalid theme = %q, want fallback \"auto\"", invalid.Pane.Theme)
+	}
+	if len(invalid.Warnings) == 0 {
+		t.Error("expected warning for invalid pane.theme")
+	}
+}

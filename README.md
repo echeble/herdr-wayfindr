@@ -245,7 +245,7 @@ below it, which is why the pull request says `in progress` rather than `open`.
 ## Install
 
 ```bash
-herdr plugin install Credify/llm-context/plugins/wayfindr
+herdr plugin install echeble/wayfindr
 ```
 
 Open the sidebar:

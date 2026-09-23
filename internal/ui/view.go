@@ -287,18 +287,15 @@ func (m Model) renderGroup(r row) string {
 		marker = "▸"
 	}
 
-	head := fmt.Sprintf("%s %s %s", marker, statusGlyph(r.status, r.openCount > 0), r.displayName())
+	gStyle := groupStyleFor(r.name)
+	dot := statusGlyphStyled(r.status, r.openCount > 0)
+	head := fmt.Sprintf("%s %s %s", gStyle.Render(marker), dot, gStyle.Render(r.displayName()))
 
-	// Neither the member count nor the rule behind a derived group is printed:
-	// the name is what you scan for, and 40 columns are better spent on it.
-	// `--list` still gives both for anyone who wants them.
-	styled := groupStyleFor(r.name).Render(head)
-
-	if style, ok := prStyleFor(r.pr); ok {
-		styled += style.Render(" " + r.pr.String())
+	if badge := prBadge(r.pr); badge != "" {
+		head += " " + badge
 	}
 
-	return styled
+	return head
 }
 
 func (m Model) renderWorktree(r row, width int) string {
@@ -309,7 +306,7 @@ func (m Model) renderWorktree(r row, width int) string {
 		name = wt.Path
 	}
 
-	line := fmt.Sprintf("  %s %s", statusGlyph(wt.AgentStatus, wt.Open()), name)
+	line := fmt.Sprintf("  %s %s", statusGlyphStyled(wt.AgentStatus, wt.Open()), name)
 
 	// The branch is only worth a column when it is not already the group's
 	// name — which it is for every ticket-derived group.
@@ -417,53 +414,20 @@ func (m Model) renderCard(r row, selected bool, width, height int) string {
 
 	body := strings.Join(m.cardLines(r, inner, inside), "\n")
 
-	if selected {
-		// The card's own colours — the feature's hue in the head, the faint
-		// details, the pull-request mark — each carry their own reset, and the
-		// frame below only wraps a line once: a colour left in place would cut
-		// the fill off at its own boundary instead of covering the whole card.
-		// Stripping first lets one plain background take over the entire card,
-		// exactly the trick stripANSI's own doc describes for a list row.
-		body = stripANSI(body)
-	}
-
 	return cardFrame(r, selected).Width(inner).Height(inside).Render(body)
 }
 
 // cardFrame is the box a card is drawn in.
-//
-// An idle card is only ever framed; a selected one is filled solid, so the one
-// card you are on is never mistaken for one more idle card among the others.
-//
-// A worktree card is drawn in the colour of the feature it was opened from, so
-// a drill-down stays visibly part of it.
+// An idle card is framed in dashed grey; a selected one is highlighted with a heavy
+// solid border in its feature's colour, so the focused card stands out sharply
+// while keeping its interior status colours, agent dots, and PR marks intact.
 func cardFrame(r row, selected bool) lipgloss.Style {
-	// An idle frame is grey rather than a dimmer version of the feature's
-	// colour, and it costs nothing: the card's own title is already drawn in
-	// that colour, so the grid still reads by feature. Spending colour on every
-	// frame only made the selected one compete with eleven others. The dashed
-	// weight carries the rest of the distinction, so a solid frame is never
-	// mistaken for one more idle card among the others.
 	if !selected {
 		return lipgloss.NewStyle().
 			Border(dashedBorder).
 			BorderForeground(idleFrameColour)
 	}
 
-	// Selected, the card fills solid with its own colour rather than only
-	// framing it — one block of colour instead of a coloured line around an
-	// otherwise plain card — and the border is drawn in that same colour so it
-	// reads as the edge of the fill rather than a different one traced around
-	// it. Foreground(0) is black: renderCard has already stripped the text of
-	// its own colour, so black reads reliably over every hue in the palette
-	// instead of fighting whatever the text would otherwise be drawn in.
-	//
-	// The ungrouped bucket still takes a colour here, unlike everywhere else
-	// it is deliberately colourless: peach is the one hue this pane already
-	// spends on "you can act on this" — the keys in the footer, the breadcrumb
-	// button, a highlighted menu item — never on a feature of its own, so
-	// reusing it for the selected ungrouped card says the same thing without
-	// pretending the bucket is a feature.
 	color := lipgloss.Color("215")
 	if r.name != ungroupedLabel {
 		color = groupColor(r.name)
@@ -471,8 +435,6 @@ func cardFrame(r row, selected bool) lipgloss.Style {
 
 	return lipgloss.NewStyle().
 		Border(lipgloss.ThickBorder()).
-		Foreground(lipgloss.Color("0")).
-		Background(color).
 		BorderForeground(color)
 }
 
@@ -487,7 +449,7 @@ func (m Model) cardLines(r row, width, height int) []string {
 // featureCardLines is the face of a feature: what it is called, how much of it
 // there is, how much of it is open, and where its pull requests stand.
 func featureCardLines(r row, width, height int) []string {
-	head := groupStyleFor(r.name).Render(statusGlyph(r.status, r.openCount > 0) + " " + cardName(r))
+	head := statusGlyphStyled(r.status, r.openCount > 0) + " " + groupStyleFor(r.name).Render(cardName(r))
 
 	details := []string{
 		plural(r.members, "worktree"),
@@ -498,7 +460,7 @@ func featureCardLines(r row, width, height int) []string {
 	// never did — and "blocked" is the one thing you want a feature to be able
 	// to tell you from across the pane.
 	if word := agentWord(r.status, r.agents, r.openCount > 0); word != "" {
-		details = append(details, derivedStyle.Render(word))
+		details = append(details, statusWordStyle(r.status).Render(word))
 	}
 
 	return cardBlock(head, details, prFoot(r.pr), width, height)
@@ -511,9 +473,9 @@ func (m Model) worktreeCardLines(r row, width, height int) []string {
 
 	// cardName is what the card was sized to fit, so it has to be what the card
 	// then draws.
-	head := statusGlyph(wt.AgentStatus, wt.Open()) + " " + cardName(r)
+	head := statusGlyphStyled(wt.AgentStatus, wt.Open()) + " " + cardName(r)
 	if !wt.Open() {
-		head = closedStyle.Render(head)
+		head = closedStyle.Render(stripANSI(head))
 	}
 
 	var details []string
@@ -527,7 +489,7 @@ func (m Model) worktreeCardLines(r row, width, height int) []string {
 	// The count is part of the word now — "2 agents working" — so the trailing
 	// "· N agents" this used to carry would say the same thing twice.
 	if word := agentWord(wt.AgentStatus, wt.Agents, wt.Open()); word != "" {
-		details = append(details, derivedStyle.Render(word))
+		details = append(details, statusWordStyle(wt.AgentStatus).Render(word))
 	}
 
 	if suffix := statusSuffix(*wt); suffix != "" {
@@ -727,7 +689,7 @@ func (m Model) footer(width int) string {
 // sort". The mode has to be legible at rest: a keystroke that silently reorders
 // the list leaves you wondering what you are looking at.
 func (m Model) sortHint() string {
-	return keyStyle.Render("s") + footerStyle.Render(" "+m.order.String())
+	return keyStyle.Render("s") + " " + lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("141")).Render(m.order.String())
 }
 
 // overlayCutHorizon is a column count no rendered line is ever close to
@@ -836,11 +798,17 @@ func (m Model) menuBox(items []menuItem) string {
 // that switch view and order are in every one that has room for them: an
 // alternative nobody finds out about is worth nothing.
 func (m Model) hints(reload, order string) []string {
+	badge := keyStyle.Render("[list]")
+	if m.view == viewCards {
+		badge = keyStyle.Render("[cards]")
+	}
+
 	if m.view != viewCards {
 		return []string{
-			keyStyle.Render("j/k") + footerStyle.Render(" move · ") + keyStyle.Render("enter") + footerStyle.Render(" jump · ") + keyStyle.Render("space") + footerStyle.Render(" fold · ") + keyStyle.Render("t") + footerStyle.Render(" tag · ") + keyStyle.Render("p") + footerStyle.Render(" pin · ") + keyStyle.Render("R") + footerStyle.Render(" rename · ") + keyStyle.Render("v") + footerStyle.Render(" cards · ") + keyStyle.Render("q") + footerStyle.Render(" close · ") + order + footerStyle.Render(" · ") + reload,
-			keyStyle.Render("enter") + footerStyle.Render(" jump · ") + keyStyle.Render("t") + footerStyle.Render(" tag · ") + keyStyle.Render("v") + footerStyle.Render(" cards · ") + order + footerStyle.Render(" · ") + reload,
-			keyStyle.Render("v") + footerStyle.Render(" cards · ") + order + footerStyle.Render(" · ") + reload,
+			badge + " " + keyStyle.Render("j/k") + footerStyle.Render(" move · ") + keyStyle.Render("enter") + footerStyle.Render(" jump · ") + keyStyle.Render("space") + footerStyle.Render(" fold · ") + keyStyle.Render("t") + footerStyle.Render(" tag · ") + keyStyle.Render("p") + footerStyle.Render(" pin · ") + keyStyle.Render("R") + footerStyle.Render(" rename · ") + keyStyle.Render("v") + footerStyle.Render(" cards · ") + keyStyle.Render("q") + footerStyle.Render(" close · ") + order + footerStyle.Render(" · ") + reload,
+			badge + " " + keyStyle.Render("enter") + footerStyle.Render(" jump · ") + keyStyle.Render("t") + footerStyle.Render(" tag · ") + keyStyle.Render("v") + footerStyle.Render(" cards · ") + order + footerStyle.Render(" · ") + reload,
+			badge + " " + order + footerStyle.Render(" · ") + keyStyle.Render("v") + footerStyle.Render(" cards · ") + reload,
+			badge + " " + order + footerStyle.Render(" · ") + reload,
 			order + footerStyle.Render(" · ") + reload,
 			reload,
 		}
@@ -852,18 +820,20 @@ func (m Model) hints(reload, order string) []string {
 		// belongs to the feature itself, not to the worktrees inside it, so it
 		// is not offered here either — back out to the grid for that.
 		return []string{
-			keyStyle.Render("←/→") + footerStyle.Render(" move · ") + keyStyle.Render("enter") + footerStyle.Render(" open · ") + keyStyle.Render("esc") + footerStyle.Render(" back · ") + keyStyle.Render("t") + footerStyle.Render(" tag · ") + keyStyle.Render("v") + footerStyle.Render(" list · ") + reload,
-			keyStyle.Render("enter") + footerStyle.Render(" open · ") + keyStyle.Render("esc") + footerStyle.Render(" back · ") + keyStyle.Render("v") + footerStyle.Render(" list · ") + reload,
-			keyStyle.Render("enter") + footerStyle.Render(" open · ") + keyStyle.Render("esc") + footerStyle.Render(" back · ") + reload,
+			badge + " " + keyStyle.Render("←/→") + footerStyle.Render(" move · ") + keyStyle.Render("enter") + footerStyle.Render(" open · ") + keyStyle.Render("esc") + footerStyle.Render(" back · ") + keyStyle.Render("t") + footerStyle.Render(" tag · ") + keyStyle.Render("v") + footerStyle.Render(" list · ") + reload,
+			badge + " " + keyStyle.Render("enter") + footerStyle.Render(" open · ") + keyStyle.Render("esc") + footerStyle.Render(" back · ") + keyStyle.Render("v") + footerStyle.Render(" list · ") + reload,
+			badge + " " + keyStyle.Render("enter") + footerStyle.Render(" open · ") + keyStyle.Render("esc") + footerStyle.Render(" back · ") + reload,
+			badge + " " + keyStyle.Render("esc") + footerStyle.Render(" back · ") + reload,
 			keyStyle.Render("esc") + footerStyle.Render(" back · ") + reload,
 			reload,
 		}
 	}
 
 	return []string{
-		keyStyle.Render("←/→") + footerStyle.Render(" move · ") + keyStyle.Render("enter") + footerStyle.Render(" open · ") + keyStyle.Render("R") + footerStyle.Render(" rename · ") + keyStyle.Render("v") + footerStyle.Render(" list · ") + keyStyle.Render("q") + footerStyle.Render(" close · ") + order + footerStyle.Render(" · ") + reload,
-		keyStyle.Render("enter") + footerStyle.Render(" open · ") + keyStyle.Render("v") + footerStyle.Render(" list · ") + order + footerStyle.Render(" · ") + reload,
-		keyStyle.Render("v") + footerStyle.Render(" list · ") + order + footerStyle.Render(" · ") + reload,
+		badge + " " + keyStyle.Render("←/→") + footerStyle.Render(" move · ") + keyStyle.Render("enter") + footerStyle.Render(" open · ") + keyStyle.Render("R") + footerStyle.Render(" rename · ") + keyStyle.Render("v") + footerStyle.Render(" list · ") + keyStyle.Render("q") + footerStyle.Render(" close · ") + order + footerStyle.Render(" · ") + reload,
+		badge + " " + keyStyle.Render("enter") + footerStyle.Render(" open · ") + keyStyle.Render("v") + footerStyle.Render(" list · ") + order + footerStyle.Render(" · ") + reload,
+		badge + " " + order + footerStyle.Render(" · ") + keyStyle.Render("v") + footerStyle.Render(" list · ") + reload,
+		badge + " " + order + footerStyle.Render(" · ") + reload,
 		order + footerStyle.Render(" · ") + reload,
 		reload,
 	}

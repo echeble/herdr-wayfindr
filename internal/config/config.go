@@ -38,6 +38,7 @@ const (
 	DefaultDirection   = "left"
 	DefaultWidth       = 40
 	DefaultView        = ViewList
+	DefaultTheme       = "auto"
 )
 
 // The two presentations. ViewList is the grouped list; ViewCards is a grid of
@@ -110,6 +111,8 @@ type Pane struct {
 	// plugin pane API only takes a width for a popup, so a split has to move
 	// its own divider. 0 leaves the split wherever Herdr put it.
 	Width int `json:"width" toml:"width"`
+	// Theme adapts palette to dark or light backgrounds: "auto", "ink", or "paper".
+	Theme string `json:"theme" toml:"theme"`
 }
 
 type Tokens struct {
@@ -133,6 +136,7 @@ var (
 	// only opens right or down; "left" is that plus a swap, which pane.sh does.
 	validDirections = map[string]bool{"left": true, "right": true}
 	validViews      = map[string]bool{ViewList: true, ViewCards: true}
+	validThemes     = map[string]bool{"auto": true, "ink": true, "paper": true}
 )
 
 // Default returns the configuration used when no config.toml exists.
@@ -154,6 +158,7 @@ func Default() Config {
 			Mouse:      true,
 			RightClick: true,
 			Singleton:  true,
+			Theme:      DefaultTheme,
 		},
 		Tokens: Tokens{
 			Enabled: true,
@@ -299,6 +304,14 @@ func merge(cfg, raw Config, md toml.MetaData) Config {
 			cfg.Warnings = append(cfg.Warnings, fmt.Sprintf("pane.view %q is not list or cards; using %s", raw.Pane.View, DefaultView))
 		} else {
 			cfg.Pane.View = raw.Pane.View
+		}
+	}
+
+	if raw.Pane.Theme != "" {
+		if !validThemes[raw.Pane.Theme] {
+			cfg.Warnings = append(cfg.Warnings, fmt.Sprintf("pane.theme %q is not auto, ink, or paper; using %s", raw.Pane.Theme, DefaultTheme))
+		} else {
+			cfg.Pane.Theme = raw.Pane.Theme
 		}
 	}
 
