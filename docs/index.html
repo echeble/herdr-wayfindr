@@ -84,6 +84,11 @@
             --pr-merged: #cba6f7;
             --pr-progress: #a6e3a1;
             --pr-closed: #f38ba8;
+            --herdr-sidebar-bg: #141724;
+            --herdr-sidebar-text: #9aa5b9;
+            --herdr-sidebar-dim: #54627b;
+            --herdr-sidebar-active: rgba(255, 255, 255, 0.08);
+            --term-editor-bg: #10111a;
         }
 
         html[data-mode="paper"] {
@@ -113,6 +118,11 @@
             --pr-merged: #8839ef;
             --pr-progress: #2d9f52;
             --pr-closed: #c73e3e;
+            --herdr-sidebar-bg: #e6e0d2;
+            --herdr-sidebar-text: #4a473f;
+            --herdr-sidebar-dim: #847e70;
+            --herdr-sidebar-active: rgba(0, 0, 0, 0.06);
+            --term-editor-bg: #fdfaf3;
         }
 
         :root {
@@ -537,15 +547,70 @@
             background: var(--term-bg);
             box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
             overflow: hidden;
+            border-radius: 4px;
+        }
+
+        /* ── Herdr Window Chrome Bar ── */
+        .herdr-window-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            background: var(--term-panel);
+            border-bottom: 1px solid var(--term-border);
+            font-family: var(--mono);
+            font-size: 11.5px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .window-left-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .window-controls {
+            display: inline-flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .w-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .w-dot.close { background: #ff5f56; }
+        .w-dot.min { background: #ffbd2e; }
+        .w-dot.max { background: #27c93f; }
+
+        .herdr-window-title {
+            color: var(--term-dim);
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .herdr-window-title strong {
+            color: var(--term-text);
+        }
+
+        .herdr-window-title .pill {
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 2px;
+            background: color-mix(in srgb, var(--spot) 15%, transparent);
+            color: var(--spot);
         }
 
         .tui-toolbar {
             display: flex;
             align-items: center;
-            gap: 14px;
-            padding: 10px 16px;
-            background: var(--term-panel);
-            border-bottom: 1px solid var(--term-border);
+            gap: 12px;
             font-family: var(--mono);
             font-size: 11.5px;
             flex-wrap: wrap;
@@ -561,11 +626,11 @@
             background: none;
             border: 0;
             color: var(--term-dim);
-            padding: 6px 12px;
+            padding: 5px 10px;
             font-family: var(--mono);
             font-size: 11px;
             cursor: pointer;
-            letter-spacing: .08em;
+            letter-spacing: .06em;
             text-transform: uppercase;
             transition: all .12s ease;
         }
@@ -580,7 +645,7 @@
             background: none;
             border: 1px solid var(--term-border);
             color: var(--term-text);
-            padding: 6px 12px;
+            padding: 5px 10px;
             font-family: var(--mono);
             font-size: 11px;
             cursor: pointer;
@@ -593,20 +658,375 @@
         .tui-sort-btn:hover { border-color: var(--spot); color: var(--spot); }
 
         .tui-hint {
-            margin-left: auto;
             color: var(--term-dim);
             font-size: 11px;
+        }
+
+        /* ── Workspace 3-Column Layout ── */
+        .herdr-workspace-grid {
+            display: grid;
+            grid-template-columns: 215px 395px minmax(0, 1fr);
+            background: var(--term-bg);
+            min-height: 620px;
+        }
+
+        @media (max-width: 1180px) {
+            .herdr-workspace-grid {
+                grid-template-columns: 190px 370px minmax(0, 1fr);
+            }
+        }
+
+        @media (max-width: 960px) {
+            .herdr-workspace-grid {
+                display: flex;
+                flex-direction: column;
+            }
+        }
+
+        /* ── 1. Leftmost Herdr Native Sidebar ── */
+        .herdr-native-sidebar {
+            background: var(--herdr-sidebar-bg);
+            border-right: 1px solid var(--term-border);
+            font-family: var(--mono);
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--herdr-sidebar-text);
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            overflow-y: auto;
+            max-height: 660px;
+            transition: width .15s ease;
+        }
+
+        .herdr-native-sidebar.collapsed {
+            width: 36px;
+            min-width: 36px;
+            overflow: hidden;
+        }
+
+        .herdr-native-sidebar.collapsed .h-tree,
+        .herdr-native-sidebar.collapsed .h-sidebar-actions,
+        .herdr-native-sidebar.collapsed .h-agents-pane,
+        .herdr-native-sidebar.collapsed .h-sidebar-header span {
+            display: none;
+        }
+
+        .herdr-native-sidebar.collapsed .h-sidebar-foot span {
+            transform: rotate(180deg);
+        }
+
+        .h-sidebar-header {
+            padding: 10px 14px 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #7287fd;
+            letter-spacing: .04em;
+        }
+
+        .h-tree {
+            padding: 2px 0 10px;
+            flex: 1;
+        }
+
+        .h-repo-row {
+            display: flex;
+            align-items: center;
+            padding: 2px 14px;
+            gap: 6px;
+            cursor: pointer;
+            color: var(--herdr-sidebar-text);
+            transition: color .08s ease;
+        }
+
+        .h-repo-row:hover {
+            color: var(--term-text);
+        }
+
+        .h-repo-row .h-dot {
+            color: var(--herdr-sidebar-dim);
+            font-weight: 700;
+        }
+
+        .h-repo-row .h-name {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+
+        .h-repo-row .h-arr {
+            font-size: 9px;
+            color: #7287fd;
+            margin-left: auto;
+            transition: transform .12s ease;
+        }
+
+        .h-repo-group.collapsed .h-arr {
+            transform: rotate(-90deg);
+        }
+
+        .h-repo-group.collapsed .h-sub-tree {
+            display: none;
+        }
+
+        .h-sub-tree {
+            padding-left: 20px;
+            margin-bottom: 3px;
+        }
+
+        .h-branch-label {
+            color: var(--herdr-sidebar-dim);
+            font-size: 11.5px;
+            padding: 1px 0 1px 6px;
+        }
+
+        .h-wt-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 1.5px 6px;
+            font-size: 11.5px;
+            color: var(--herdr-sidebar-text);
+            cursor: pointer;
+            border-radius: 2px;
+            transition: background .08s ease;
+        }
+
+        .h-wt-row:hover {
+            background: var(--herdr-sidebar-active);
+            color: var(--term-text);
+        }
+
+        .h-wt-row.active {
+            background: var(--herdr-sidebar-active);
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .h-wt-row .h-branch-char {
+            color: #455269;
+            font-size: 11px;
+        }
+
+        .h-wt-row .h-wt-dot {
+            color: var(--herdr-sidebar-dim);
+        }
+
+        .h-wt-row .h-status-circle {
+            color: #a6e3a1;
+            font-weight: 700;
+            font-size: 11px;
+        }
+
+        .h-sidebar-actions {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 14px;
+            font-size: 11px;
+            color: var(--herdr-sidebar-dim);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .h-sidebar-actions span {
+            cursor: pointer;
+        }
+        .h-sidebar-actions span:hover {
+            color: var(--herdr-sidebar-text);
+        }
+
+        .h-agents-pane {
+            padding: 8px 14px 10px;
+        }
+
+        .h-agents-head {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--herdr-sidebar-dim);
+            margin-bottom: 6px;
+        }
+
+        .h-agent-entry {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11.5px;
+            color: var(--term-text);
+            padding: 2px 4px;
+            background: var(--herdr-sidebar-active);
+            border-radius: 2px;
+        }
+
+        .h-agent-entry .h-circ {
+            color: #a6e3a1;
+        }
+
+        .h-agent-sub {
+            padding-left: 18px;
+            font-size: 11px;
+            color: var(--herdr-sidebar-dim);
+            margin-top: 1px;
+        }
+
+        .h-sidebar-foot {
+            margin-top: auto;
+            padding: 6px 14px;
+            display: flex;
+            justify-content: flex-end;
+            color: var(--herdr-sidebar-dim);
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .h-sidebar-foot:hover {
+            color: var(--herdr-sidebar-text);
+        }
+
+        /* ── 2. Middle Wayfindr Pane Wrapper ── */
+        .wayfindr-pane-wrapper {
+            border-right: 1px solid var(--term-border);
+            display: flex;
+            flex-direction: column;
+            background: var(--term-bg);
+            min-width: 0;
+            position: relative;
+        }
+
+        .wayfindr-pane-wrapper .tui-screen {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+        /* ── 3. Rightmost Herdr Terminal Panel ── */
+        .herdr-terminal-panel {
+            background: var(--term-editor-bg);
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            font-family: var(--mono);
+            color: var(--term-text);
+        }
+
+        .term-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            background: var(--term-panel);
+            border-bottom: 1px solid var(--term-border);
+            font-size: 11.5px;
+            gap: 10px;
+        }
+
+        .term-tab {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--term-text);
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .term-tab-icon {
+            color: var(--spot);
+            font-size: 11px;
+        }
+
+        .term-tab-branch {
+            color: var(--term-dim);
+            font-weight: 400;
+            font-size: 11px;
+        }
+
+        .term-chips {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: auto;
+        }
+
+        .term-chip {
+            font-size: 10.5px;
+            padding: 2px 7px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--term-dim);
+            border: 1px solid var(--term-border);
+        }
+
+        .term-chip.active {
+            color: var(--st-blocked);
+            border-color: color-mix(in srgb, var(--st-blocked) 40%, transparent);
+            background: color-mix(in srgb, var(--st-blocked) 10%, transparent);
+        }
+
+        .term-chip.done {
+            color: var(--st-done);
+            border-color: color-mix(in srgb, var(--st-done) 40%, transparent);
+            background: color-mix(in srgb, var(--st-done) 10%, transparent);
+        }
+
+        .term-body {
+            padding: 16px 20px;
+            font-size: 12.5px;
+            line-height: 1.6;
+            flex: 1;
+            overflow-y: auto;
+            max-height: 560px;
+        }
+
+        .term-body .term-line {
+            margin-bottom: 4px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .term-body .term-prompt {
+            color: var(--term-dim);
+            margin-top: 10px;
+            margin-bottom: 4px;
+        }
+
+        .term-body .term-prompt .p-user { color: var(--spot); font-weight: 500; }
+        .term-body .term-prompt .p-path { color: #89b4fa; font-weight: 500; }
+        .term-body .term-prompt .p-branch { color: #fab387; }
+        .term-body .term-prompt .p-cmd { color: var(--term-text); font-weight: 600; }
+
+        .term-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 14px;
+            background: var(--spot);
+            vertical-align: middle;
+            animation: site-pulse 1s infinite;
+        }
+
+        .term-footer-bar {
+            padding: 5px 14px;
+            background: var(--term-panel);
+            border-top: 1px solid var(--term-border);
+            font-size: 10.5px;
+            color: var(--term-dim);
+            display: flex;
+            justify-content: space-between;
         }
 
         /* TUI View Area */
         .tui-screen {
             position: relative;
-            padding: 18px 20px;
+            padding: 14px 16px;
             font-family: var(--mono);
             font-size: 13px;
             line-height: 1.6;
             color: var(--term-text);
-            min-height: 380px;
+            min-height: 520px;
             user-select: none;
         }
 
@@ -1396,30 +1816,196 @@
         </div>
 
         <div class="plate" id="interactive-tui">
-            <!-- TUI Control Toolbar -->
-            <div class="tui-toolbar">
-                <div class="tui-switch-group">
-                    <button type="button" class="tui-switch-btn active" id="btn-view-list" data-view="list">List (v)</button>
-                    <button type="button" class="tui-switch-btn" id="btn-view-cards" data-view="cards">Cards (v)</button>
+            <!-- ── Herdr Window Chrome Bar ── -->
+            <div class="herdr-window-bar">
+                <div class="window-left-group">
+                    <div class="window-controls">
+                        <span class="w-dot close" title="Close"></span>
+                        <span class="w-dot min" title="Minimize"></span>
+                        <span class="w-dot max" title="Zoom"></span>
+                    </div>
+                    <div class="herdr-window-title">
+                        <span style="color: var(--spot); font-size: 13px;">◈</span>
+                        <span>herdr</span>
+                        <span style="opacity: 0.4;">/</span>
+                        <strong id="window-crumb-worktree">marketplace-billing-service</strong>
+                        <span class="pill" id="window-crumb-branch">worktree-WAYF-20748</span>
+                    </div>
                 </div>
 
-                <button type="button" class="tui-sort-btn" id="btn-cycle-sort" title="Click to cycle sort order">
-                    <span>Sort:</span>
-                    <strong id="tui-sort-label" style="color: var(--spot);">alpha asc</strong>
-                    <span style="font-size: 9px; opacity: 0.7;">(s)</span>
-                </button>
+                <!-- TUI Control Toolbar -->
+                <div class="tui-toolbar">
+                    <div class="tui-switch-group">
+                        <button type="button" class="tui-switch-btn active" id="btn-view-list" data-view="list">List (v)</button>
+                        <button type="button" class="tui-switch-btn" id="btn-view-cards" data-view="cards">Cards (v)</button>
+                    </div>
 
-                <button type="button" class="tui-sort-btn" id="btn-demo-ctx">
-                    Right-Click Menu
-                </button>
+                    <button type="button" class="tui-sort-btn" id="btn-cycle-sort" title="Click to cycle sort order">
+                        <span>Sort:</span>
+                        <strong id="tui-sort-label" style="color: var(--spot);">alpha asc</strong>
+                        <span style="font-size: 9px; opacity: 0.7;">(s)</span>
+                    </button>
 
-                <div class="tui-hint">
-                    <span id="tui-hint-text">Click row to select · Space to fold/unfold</span>
+                    <button type="button" class="tui-sort-btn" id="btn-demo-ctx">
+                        Right-Click Menu
+                    </button>
+
+                    <div class="tui-hint">
+                        <span id="tui-hint-text">Click row to select · Space to fold/unfold</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- TUI Screen Canvas -->
-            <div class="tui-screen" id="tui-screen-canvas" tabindex="0" aria-label="Interactive Wayfindr TUI pane">
+            <!-- ── Workspace 3-Column Grid ── -->
+            <div class="herdr-workspace-grid">
+                <!-- 1. Leftmost: Herdr Native Sidebar -->
+                <aside class="herdr-native-sidebar" id="herdr-native-sidebar" aria-label="Herdr Spaces Sidebar">
+                    <div class="h-sidebar-header">
+                        <span>spaces</span>
+                    </div>
+
+                    <div class="h-tree">
+                        <div class="h-repo-row">
+                            <span class="h-dot">·</span>
+                            <span class="h-name">code</span>
+                        </div>
+
+                        <div class="h-repo-group" data-repo="wayfindr">
+                            <div class="h-repo-row">
+                                <span class="h-dot">·</span>
+                                <span class="h-name">wayfindr</span>
+                                <span class="h-arr">▾</span>
+                            </div>
+                            <div class="h-sub-tree">
+                                <div class="h-branch-label">master</div>
+                                <div class="h-wt-row active" data-repo="wayfindr" data-branch="0.20.0">
+                                    <span class="h-branch-char">└</span>
+                                    <span class="h-status-circle">○</span>
+                                    <span>0.20.0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="h-repo-group" data-repo="marketplace-api-gateway">
+                            <div class="h-repo-row">
+                                <span class="h-dot">·</span>
+                                <span class="h-name">marketplace-api-gat...</span>
+                                <span class="h-arr">▾</span>
+                            </div>
+                            <div class="h-sub-tree">
+                                <div class="h-branch-label">master</div>
+                                <div class="h-wt-row" data-repo="marketplace-api-gateway" data-branch="MKT-4382">
+                                    <span class="h-branch-char">├</span>
+                                    <span class="h-wt-dot">·</span>
+                                    <span>MKT-4382</span>
+                                </div>
+                                <div class="h-wt-row" data-repo="marketplace-api-gateway" data-branch="named-MKT-4001">
+                                    <span class="h-branch-char">├</span>
+                                    <span class="h-wt-dot">·</span>
+                                    <span>named-MKT-4001</span>
+                                </div>
+                                <div class="h-wt-row" data-repo="marketplace-api-gateway" data-branch="licence8712">
+                                    <span class="h-branch-char">└</span>
+                                    <span class="h-wt-dot">·</span>
+                                    <span>licence8712</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="h-repo-group" data-repo="marketplace-billing-service">
+                            <div class="h-repo-row">
+                                <span class="h-dot">·</span>
+                                <span class="h-name">marketplace-billing...</span>
+                                <span class="h-arr">▾</span>
+                            </div>
+                            <div class="h-sub-tree">
+                                <div class="h-branch-label">master</div>
+                                <div class="h-wt-row" data-repo="marketplace-billing-service" data-branch="MKT-4382">
+                                    <span class="h-branch-char">└</span>
+                                    <span class="h-wt-dot">·</span>
+                                    <span>MKT-4382</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="h-repo-group" data-repo="marketplace-catalog-service">
+                            <div class="h-repo-row">
+                                <span class="h-dot">·</span>
+                                <span class="h-name">marketplace-catalog...</span>
+                                <span class="h-arr">▾</span>
+                            </div>
+                            <div class="h-sub-tree">
+                                <div class="h-branch-label">master</div>
+                                <div class="h-wt-row" data-repo="marketplace-catalog-service" data-branch="MKT-4382">
+                                    <span class="h-branch-char">└</span>
+                                    <span class="h-wt-dot">·</span>
+                                    <span>MKT-4382</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="h-repo-group" data-repo="marketplace-identity-service">
+                            <div class="h-repo-row">
+                                <span class="h-dot">·</span>
+                                <span class="h-name">marketplace-identit...</span>
+                                <span class="h-arr">▾</span>
+                            </div>
+                            <div class="h-sub-tree">
+                                <div class="h-branch-label">master</div>
+                                <div class="h-wt-row" data-repo="marketplace-identity-service" data-branch="MKT-4001">
+                                    <span class="h-branch-char">└</span>
+                                    <span class="h-wt-dot">·</span>
+                                    <span>MKT-4001</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="h-repo-group" data-repo="marketplace-license-service">
+                            <div class="h-repo-row">
+                                <span class="h-dot">·</span>
+                                <span class="h-name">marketplace-license...</span>
+                                <span class="h-arr">▾</span>
+                            </div>
+                            <div class="h-sub-tree">
+                                <div class="h-branch-label">master</div>
+                                <div class="h-wt-row" data-repo="marketplace-license-service" data-branch="LIC-8712">
+                                    <span class="h-branch-char">└</span>
+                                    <span class="h-wt-dot">·</span>
+                                    <span>LIC-8712</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="h-sidebar-actions">
+                        <span>new</span>
+                        <span>menu</span>
+                    </div>
+
+                    <div class="h-agents-pane">
+                        <div class="h-agents-head">
+                            <span>agents</span>
+                            <span>grouped</span>
+                        </div>
+                        <div class="h-agent-entry">
+                            <span class="h-circ">○</span>
+                            <span style="font-weight: 600;">worktree-0-20-0</span>
+                            <span style="color: var(--herdr-sidebar-dim); margin-left: auto;">· 2</span>
+                        </div>
+                        <div class="h-agent-sub">
+                            <span>agy</span>
+                        </div>
+                    </div>
+
+                    <div class="h-sidebar-foot" id="btn-toggle-h-sidebar" title="Toggle Herdr Sidebar">
+                        <span>«</span>
+                    </div>
+                </aside>
+
+                <!-- 2. Middle: Wayfindr Sidebar Pane Wrapper -->
+                <div class="wayfindr-pane-wrapper">
+                    <!-- TUI Screen Canvas -->
+                    <div class="tui-screen" id="tui-screen-canvas" tabindex="0" aria-label="Interactive Wayfindr TUI pane">
                 <!-- Context Menu Overlay -->
                 <div class="tui-ctx-menu" id="tui-ctx-menu">
                     <div class="tui-ctx-item active" data-act="open"><span>Open</span><span class="ctx-key">enter</span></div>
@@ -1647,7 +2233,33 @@
                 <span>·</span>
                 <span><span class="legend-key">r</span> refresh</span>
             </div>
-        </div>
+        </div> <!-- /wayfindr-pane-wrapper -->
+
+        <!-- 3. Right: Terminal Workspace Panel -->
+        <aside class="herdr-terminal-panel" aria-label="Herdr Active Terminal Workspace">
+            <div class="term-panel-header">
+                <div class="term-tab">
+                    <span class="term-tab-icon">⌘</span>
+                    <span id="term-tab-title">marketplace-billing-service</span>
+                    <span class="term-tab-branch" id="term-tab-branch">· worktree-WAYF-20748</span>
+                </div>
+                <div class="term-chips">
+                    <span class="term-chip active" id="term-chip-agent">agent: agy [blocked]</span>
+                    <span class="term-chip">zsh</span>
+                </div>
+            </div>
+
+            <div class="term-body" id="term-body-content">
+                <!-- Populated by JavaScript -->
+            </div>
+
+            <div class="term-footer-bar">
+                <span>UTF-8 · zsh 5.9</span>
+                <span>Pane 2 (active)</span>
+            </div>
+        </aside>
+    </div> <!-- /herdr-workspace-grid -->
+</div> <!-- /plate -->
 
         <p class="figcap">
             <b>Two views, one continuous state.</b> Sized to checkout names so <code>marketplace-billing-service</code> never clips. 
@@ -2216,30 +2828,175 @@ herdr plugin list --plugin echeble.wayfindr --json</code></pre>
             });
         });
 
-        /* Select row in List View */
+        /* Terminal Workspace Presets & Interactivity */
+        var terminalPresets = {
+            "marketplace-billing-service": {
+                name: "marketplace-billing-service",
+                branch: "worktree-WAYF-20748",
+                agent: "agent: agy [blocked]",
+                agentClass: "active",
+                lines: [
+                    { type: "prompt", cmd: "git status" },
+                    { type: "out", html: "On branch worktree-WAYF-20748\nYour branch is up to date with 'origin/worktree-WAYF-20748'.\n\nChanges not staged for commit:\n  <span style=\"color: var(--st-blocked);\">modified:   internal/billing/processor.go</span>\n  <span style=\"color: var(--st-blocked);\">modified:   internal/billing/processor_test.go</span>\n  <span style=\"color: var(--st-blocked);\">modified:   api/v2/charge_endpoint.go</span>\n\nUntracked files:\n  <span style=\"color: var(--st-blocked);\">internal/billing/stripe_webhook.go</span>" },
+                    { type: "prompt", cmd: "go test ./..." },
+                    { type: "out", html: "<span style=\"color: var(--st-blocked);\">--- FAIL: TestProcessPayment_StripeWebhook (0.12s)</span>\n    processor_test.go:84: expected HTTP 200 OK, got 401 Unauthorized\nFAIL\nFAIL\tgithub.com/example-org/marketplace-billing-service/internal/billing\t0.384s\nFAIL" },
+                    { type: "prompt", cmd: "" }
+                ]
+            },
+            "marketplace-catalog-service": {
+                name: "marketplace-catalog-service",
+                branch: "worktree-WAYF-20748_api",
+                agent: "agent: catalog-bot [done]",
+                agentClass: "done",
+                lines: [
+                    { type: "prompt", cmd: "git status" },
+                    { type: "out", html: "On branch worktree-WAYF-20748_api\nYour branch is up to date with 'origin/worktree-WAYF-20748_api'.\n\nnothing to commit, working tree clean" },
+                    { type: "prompt", cmd: "go test ./..." },
+                    { type: "out", html: "<span style=\"color: var(--st-done);\">ok  \tgithub.com/example-org/marketplace-catalog-service/internal/catalog\t0.182s</span>\n<span style=\"color: var(--st-done);\">ok  \tgithub.com/example-org/marketplace-catalog-service/internal/schema \t0.094s</span>" },
+                    { type: "prompt", cmd: "" }
+                ]
+            },
+            "marketplace-api-gateway": {
+                name: "marketplace-api-gateway",
+                branch: "main",
+                agent: "agent: idle",
+                agentClass: "",
+                lines: [
+                    { type: "prompt", cmd: "git log -1 --oneline" },
+                    { type: "out", html: "<span style=\"color: var(--spot);\">9b2a1cf</span> Merge pull request #142 from example-org/WAYF-20748\nAuthor: GitHub &lt;noreply@github.com&gt;\nDate:   Tue Sep 22 19:42:10 2026 -0400" },
+                    { type: "prompt", cmd: "git status" },
+                    { type: "out", html: "On branch main\nYour branch is up to date with 'origin/main'.\nnothing to commit, working tree clean" },
+                    { type: "prompt", cmd: "" }
+                ]
+            },
+            "infra-terraform": {
+                name: "infra-terraform",
+                branch: "main",
+                agent: "agent: idle",
+                agentClass: "",
+                lines: [
+                    { type: "prompt", cmd: "terraform plan" },
+                    { type: "out", html: "data.aws_vpc.primary: Reading...\ndata.aws_vpc.primary: Read complete after 0s [id=vpc-0a12b34c]\n\n<span style=\"color: var(--st-idle);\">No changes. Your infrastructure matches the configuration.</span>\n\nTerraform has compared your real infrastructure against your configuration\nand found no differences, so no changes are needed." },
+                    { type: "prompt", cmd: "" }
+                ]
+            },
+            "shared-proto": {
+                name: "shared-proto",
+                branch: "master",
+                agent: "agent: idle",
+                agentClass: "",
+                lines: [
+                    { type: "prompt", cmd: "buf lint" },
+                    { type: "out", html: "<span style=\"color: var(--st-idle);\">All 42 protobuf definitions pass lint checks.</span>" },
+                    { type: "prompt", cmd: "" }
+                ]
+            }
+        };
+
+        function renderTerminal(repoName) {
+            var preset = terminalPresets[repoName] || {
+                name: repoName || "marketplace-billing-service",
+                branch: "worktree-" + (repoName || "feature"),
+                agent: "agent: idle",
+                agentClass: "",
+                lines: [
+                    { type: "prompt", cmd: "git status" },
+                    { type: "out", html: "On branch worktree-" + (repoName || "feature") + "\nnothing to commit, working tree clean" },
+                    { type: "prompt", cmd: "" }
+                ]
+            };
+
+            var tabTitle = document.getElementById("term-tab-title");
+            var tabBranch = document.getElementById("term-tab-branch");
+            var chipAgent = document.getElementById("term-chip-agent");
+            var crumbRepo = document.getElementById("window-crumb-worktree");
+            var crumbBranch = document.getElementById("window-crumb-branch");
+            var termBody = document.getElementById("term-body-content");
+
+            if (tabTitle) tabTitle.textContent = preset.name;
+            if (tabBranch) tabBranch.textContent = "· " + preset.branch;
+            if (crumbRepo) crumbRepo.textContent = preset.name;
+            if (crumbBranch) crumbBranch.textContent = preset.branch;
+
+            if (chipAgent) {
+                chipAgent.textContent = preset.agent;
+                chipAgent.className = "term-chip" + (preset.agentClass ? " " + preset.agentClass : "");
+            }
+
+            if (termBody) {
+                termBody.innerHTML = preset.lines.map(function (item) {
+                    if (item.type === "prompt") {
+                        if (item.cmd) {
+                            return '<div class="term-prompt"><span class="p-user">edgardo@macbook</span> <span class="p-path">~/' + preset.name + '</span> <span class="p-branch">(' + preset.branch + ')</span> <span class="p-sym">%</span> <span class="p-cmd">' + item.cmd + '</span></div>';
+                        } else {
+                            return '<div class="term-prompt"><span class="p-user">edgardo@macbook</span> <span class="p-path">~/' + preset.name + '</span> <span class="p-branch">(' + preset.branch + ')</span> <span class="p-sym">%</span> <span class="term-cursor">█</span></div>';
+                        }
+                    } else if (item.type === "out") {
+                        return '<div class="term-line">' + item.html + '</div>';
+                    }
+                    return '';
+                }).join("");
+            }
+        }
+
+        /* Initial render of terminal */
+        renderTerminal("marketplace-billing-service");
+
+        /* Toggle Herdr native sidebar */
+        var btnToggleSidebar = document.getElementById("btn-toggle-h-sidebar");
+        var herdrSidebar = document.getElementById("herdr-native-sidebar");
+        if (btnToggleSidebar && herdrSidebar) {
+            btnToggleSidebar.addEventListener("click", function () {
+                var isCollapsed = herdrSidebar.classList.toggle("collapsed");
+                btnToggleSidebar.querySelector("span").textContent = isCollapsed ? "»" : "«";
+            });
+        }
+
+        /* Toggle repo trees in Herdr native sidebar */
+        document.querySelectorAll(".h-repo-row").forEach(function (row) {
+            row.addEventListener("click", function () {
+                var group = row.closest(".h-repo-group");
+                if (group) {
+                    group.classList.toggle("collapsed");
+                }
+            });
+        });
+
+        /* Select row in List View & update terminal */
         document.querySelectorAll(".tui-row").forEach(function (row) {
             row.addEventListener("click", function (e) {
                 document.querySelectorAll(".tui-row").forEach(function (r) { r.classList.remove("selected"); });
                 row.classList.add("selected");
+                var repoEl = row.querySelector(".repo");
+                if (repoEl) {
+                    renderTerminal(repoEl.textContent.trim());
+                }
             });
         });
 
         /* Drill down in Cards View */
-        var cardClickTimers = {};
-        document.querySelectorAll(".tui-card[data-feature]").forEach(function (card) {
+        document.querySelectorAll(".tui-card").forEach(function (card) {
             card.addEventListener("click", function () {
                 var feat = card.dataset.feature;
-                if (!card.classList.contains("aimed")) {
-                    document.querySelectorAll(".tui-card").forEach(function (c) { c.classList.remove("aimed"); });
-                    card.classList.add("aimed");
-                    hint.textContent = "Aimed: " + feat + ". Click again to drill down.";
-                } else {
-                    /* Second click fires drilldown */
-                    cardsFeatures.style.display = "none";
-                    cardsWorktrees.style.display = "grid";
-                    cardsHeader.style.display = "flex";
-                    document.getElementById("cards-feature-title").textContent = feat;
-                    hint.textContent = "Inside feature " + feat + ". Press esc to back out.";
+                var titleEl = card.querySelector(".tui-card-title span:last-child");
+                var cardName = titleEl ? titleEl.textContent.trim() : (feat || "");
+                if (cardName && terminalPresets[cardName]) {
+                    renderTerminal(cardName);
+                }
+
+                if (feat) {
+                    if (!card.classList.contains("aimed")) {
+                        document.querySelectorAll(".tui-card").forEach(function (c) { c.classList.remove("aimed"); });
+                        card.classList.add("aimed");
+                        hint.textContent = "Aimed: " + feat + ". Click again to drill down.";
+                    } else {
+                        /* Second click fires drilldown */
+                        cardsFeatures.style.display = "none";
+                        cardsWorktrees.style.display = "grid";
+                        cardsHeader.style.display = "flex";
+                        document.getElementById("cards-feature-title").textContent = feat;
+                        hint.textContent = "Inside feature " + feat + ". Press esc to back out.";
+                    }
                 }
             });
         });
