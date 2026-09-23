@@ -1739,7 +1739,7 @@
         <a class="lnk" href="#install">Install</a>
         
         <div class="social-links">
-            <a class="ico wide" href="https://github.com/echeble/herdr-wayfindr" target="_blank" rel="noopener noreferrer" aria-label="Wayfindr on GitHub">
+            <a class="ico wide" href="https://github.com/echeble/wayfindr" target="_blank" rel="noopener noreferrer" aria-label="Wayfindr on GitHub">
                 <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.64 7.64 0 0 1 8 3.87c.68 0 1.36.09 2 .26 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z" /></svg>
                 <span>GitHub</span>
             </a>
@@ -1769,7 +1769,7 @@
         <a href="#rules">Rules</a>
         <a href="#controls">Keys</a>
         <a href="#install">Install</a>
-        <a href="https://github.com/echeble/herdr-wayfindr" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
+        <a href="https://github.com/echeble/wayfindr" target="_blank" rel="noopener noreferrer">GitHub Repo</a>
         <div class="sheet-ground">
             <span>Ground Theme</span>
             <div class="mode">
@@ -2489,7 +2489,7 @@
             </div>
             <div class="ev">
                 <div class="tape">
-                    <b>$</b><span data-tape>herdr-wayfindr --list</span>
+                    <b>$</b><span data-tape>wayfindr --list</span>
                 </div>
             </div>
         </div>
@@ -2689,10 +2689,10 @@ rows = [["state_icon", "workspace"], ["branch", "git_status"], ["$group"]]</code
                     The binary functions cleanly outside the pane via Herdr's socket API:
                 </p>
                 <div class="code-block">
-<pre><code>herdr-wayfindr --list                      # Print text grouping, rules, and PR state
-herdr-wayfindr --tag WAYF-20748             # Tag focused workspace's checkout
-herdr-wayfindr --rename WAYF-20748 "Billing" # Retitle visual group header
-herdr-wayfindr --report-tokens             # Restamp $group metadata tokens in Herdr</code></pre>
+<pre><code>wayfindr --list                      # Print text grouping, rules, and PR state
+wayfindr --tag WAYF-20748             # Tag focused workspace's checkout
+wayfindr --rename WAYF-20748 "Billing" # Retitle visual group header
+wayfindr --report-tokens             # Restamp $group metadata tokens in Herdr</code></pre>
                 </div>
             </div>
 
@@ -2703,9 +2703,9 @@ herdr-wayfindr --report-tokens             # Restamp $group metadata tokens in H
                     For local development:
                 </p>
                 <div class="code-block">
-<pre><code>git clone https://github.com/echeble/herdr-wayfindr ~/wayfindr
+<pre><code>git clone https://github.com/echeble/wayfindr ~/wayfindr
 cd ~/wayfindr
-go build -o bin/herdr-wayfindr ./cmd/herdr-wayfindr
+go build -o bin/wayfindr ./cmd/wayfindr
 herdr plugin link ~/wayfindr
 herdr plugin list --plugin echeble.wayfindr --json</code></pre>
                 </div>
@@ -2723,7 +2723,7 @@ herdr plugin list --plugin echeble.wayfindr --json</code></pre>
         <span>© 2026 <a href="https://github.com/echeble" target="_blank" rel="noopener noreferrer">echeble</a></span>
         <span class="fact">v0.20.0 · MIT License</span>
         <div class="out">
-            <a href="https://github.com/echeble/herdr-wayfindr" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://github.com/echeble/wayfindr" target="_blank" rel="noopener noreferrer">GitHub</a>
             <a href="https://herdr.dev/plugins/" target="_blank" rel="noopener noreferrer">Plugins Directory</a>
             <a href="#overview">Back to Top ↑</a>
         </div>
@@ -3379,10 +3379,10 @@ herdr plugin list --plugin echeble.wayfindr --json</code></pre>
         if (!out) return;
 
         var COMMANDS = [
-            "herdr-wayfindr --list",
-            "herdr-wayfindr --tag WAYF-20748",
-            'herdr-wayfindr --rename WAYF-20748 "Billing Redesign"',
-            "herdr-wayfindr --report-tokens",
+            "wayfindr --list",
+            "wayfindr --tag WAYF-20748",
+            'wayfindr --rename WAYF-20748 "Billing Redesign"',
+            "wayfindr --report-tokens",
             "herdr plugin action invoke toggle --plugin echeble.wayfindr"
         ];
 
