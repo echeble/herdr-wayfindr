@@ -1,13 +1,13 @@
-# Wayfindr
+# herdr-wayfindr
+
+👉 **Interactive Simulator & Documentation:** [herdr-wayfindr](https://echeble.github.io/herdr-wayfindr/)
 
 ![Go](https://img.shields.io/badge/go-1.24%2B-00ADD8.svg)
 ![herdr 0.9.0+](https://img.shields.io/badge/herdr-0.9.0%2B-8a2be2)
 ![herdr-wayfindr v0.21.0](https://img.shields.io/badge/herdr-wayfindr-v0.21.0-blue)
 ![platforms: linux, macOS](https://img.shields.io/badge/platforms-linux%2C%20macOS-informational)
 
-**Group Git worktrees across distinct workspaces and repositories by feature rather than by repository.** A [Herdr](https://herdr.dev) plugin that brings scattered microservice checkouts, ticket branches, and agent statuses together into a cohesive sidebar pane.
-
-👉 **Interactive Simulator & Documentation:** [`docs/index.html`](docs/index.html) (or visit [echeble.github.io/herdr-wayfindr](https://echeble.github.io/herdr-wayfindr/))
+A [Herdr](https://herdr.dev) plugin that brings scattered microservice checkouts, ticket branches, and agent statuses together into a cohesive sidebar pane.
 
 ---
 
@@ -125,8 +125,8 @@ view = "list"          # "list" or "cards"
 width = 40             # Columns to resize sidebar split to
 theme = "auto"         # "auto", "ink" (dark), or "paper" (light)
 mouse = true           # Enable mouse selection and scrolling
-right_click = true     # Claim right-click for Wayfindr context menu
-singleton = true       # Keep only one active Wayfindr pane across workspaces
+right_click = true     # Claim right-click for wayfindr context menu
+singleton = true       # Keep only one active wayfindr pane across workspaces
 
 [grouping]
 jira_pattern = '(?i)\b([A-Z]{2,10}-\d+)\b'
