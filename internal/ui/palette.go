@@ -6,6 +6,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/echeble/herdr-wayfindr/internal/collect"
+	"github.com/echeble/herdr-wayfindr/internal/herdr"
 )
 
 // groupPalette is the set of colours group headers are drawn in. They are
@@ -35,6 +36,58 @@ var groupPalette = []lipgloss.Color{
 // terminal theme cannot remap it into something with a different meaning.
 const idleFrameColour = lipgloss.Color("244")
 
+// Semantic agent status styles.
+// Blocked is coral/red (bold for immediate urgency across the pane).
+// Working is warm amber/yellow.
+// Done is cyan/teal.
+// Idle is calm green.
+// Closed and unknown are faint.
+var (
+	statusBlockedStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("203"))
+	statusWorkingStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("214"))
+	statusDoneStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("79"))
+	statusIdleStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("114"))
+	statusClosedStyle  = lipgloss.NewStyle().Faint(true)
+	statusUnknownStyle = lipgloss.NewStyle().Faint(true)
+)
+
+// statusGlyphStyled maps an agent state to a colored one-cell glyph.
+func statusGlyphStyled(status string, open bool) string {
+	if !open {
+		return statusClosedStyle.Render("◌")
+	}
+
+	switch status {
+	case herdr.StatusBlocked:
+		return statusBlockedStyle.Render("◆")
+	case herdr.StatusWorking:
+		return statusWorkingStyle.Render("●")
+	case herdr.StatusDone:
+		return statusDoneStyle.Render("✔")
+	case herdr.StatusIdle:
+		return statusIdleStyle.Render("○")
+	default:
+		return statusUnknownStyle.Render("·")
+	}
+}
+
+// statusWordStyle colors the word description (e.g. "1 agent blocked")
+// according to the state it describes.
+func statusWordStyle(status string) lipgloss.Style {
+	switch status {
+	case herdr.StatusBlocked:
+		return statusBlockedStyle
+	case herdr.StatusWorking:
+		return statusWorkingStyle
+	case herdr.StatusDone:
+		return statusDoneStyle
+	case herdr.StatusIdle:
+		return statusIdleStyle
+	default:
+		return derivedStyle
+	}
+}
+
 // The pull-request colours are GitHub's own, so the sidebar reads the way the
 // pull request page does: purple for merged, green for open, red for closed.
 // They are 256-colour approximations of #8250df, #1a7f37 and #cf222e, given as
@@ -45,6 +98,16 @@ var (
 	prOpenStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("34"))
 	prClosedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("160"))
 )
+
+// prBadge formats a pull-request state with glyph and label for group headers.
+func prBadge(state collect.PRState) string {
+	style, ok := prStyleFor(state)
+	if !ok {
+		return ""
+	}
+
+	return style.Render(prMark(state) + " " + state.String())
+}
 
 // prStyleFor answers how a pull-request state is drawn, and whether it is drawn
 // at all: a branch with no pull request, and one nobody could ask about, are

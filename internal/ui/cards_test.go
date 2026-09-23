@@ -573,48 +573,37 @@ func TestSelectedCardKeepsTheThickerFrame(t *testing.T) {
 	}
 }
 
-func TestSelectedCardFillsWithItsOwnColour(t *testing.T) {
-	// A selected card is a solid block of its feature's colour, not just a
-	// coloured outline around an otherwise plain one.
+func TestSelectedCardBorderMatchesFeatureColour(t *testing.T) {
+	// A selected card is framed with a heavy border in its feature's colour.
 	r := row{kind: rowGroup, name: "WAYF-1"}
 	style := cardFrame(r, true)
 
-	if bg := style.GetBackground(); bg != lipgloss.TerminalColor(groupColor("WAYF-1")) {
-		t.Errorf("selected background = %v, want the feature's own colour %v", bg, groupColor("WAYF-1"))
+	if border := style.GetBorderTopForeground(); border != lipgloss.TerminalColor(groupColor("WAYF-1")) {
+		t.Errorf("border colour = %v, want the feature's own colour %v", border, groupColor("WAYF-1"))
 	}
 
-	if border := style.GetBorderTopForeground(); border != style.GetBackground() {
-		t.Errorf("border colour = %v, want it to match the fill %v", border, style.GetBackground())
-	}
-
-	// Idle cards spend no background at all: only the selected one fills.
-	if idle := cardFrame(r, false).GetBackground(); idle != (lipgloss.NoColor{}) {
-		t.Errorf("idle background = %v, want none", idle)
+	// Idle cards spend no feature colour on frame: only grey.
+	if idle := cardFrame(r, false).GetBorderTopForeground(); idle != lipgloss.TerminalColor(idleFrameColour) {
+		t.Errorf("idle border = %v, want grey", idle)
 	}
 }
 
-func TestSelectedCardTextIsBlackOnEveryColour(t *testing.T) {
-	// The text is stripped of its own colour before this style ever sees it —
-	// see renderCard — so a single readable foreground has to carry every
-	// feature's card, not just some of them.
-	for _, name := range []string{"WAYF-1", "WAYF-2", "release", ungroupedLabel} {
-		r := row{kind: rowGroup, name: name}
-
-		if fg := cardFrame(r, true).GetForeground(); fg != lipgloss.Color("0") {
-			t.Errorf("%s: selected foreground = %v, want black", name, fg)
-		}
+func TestSelectedCardPreservesInteriorColors(t *testing.T) {
+	// Selected card does not force foreground black, preserving
+	// interior glyph and status colours.
+	r := row{kind: rowGroup, name: "WAYF-1"}
+	if fg := cardFrame(r, true).GetForeground(); fg != (lipgloss.NoColor{}) {
+		t.Errorf("selected foreground = %v, want no colour override", fg)
 	}
 }
 
 func TestSelectedUngroupedCardTakesThePeachAccent(t *testing.T) {
 	// Ungrouped is colourless everywhere else — it is the absence of a
-	// feature, not one more — but selected it still has to fill with
-	// something, and peach is the one hue already spent on "you can act on
-	// this" rather than on any feature of its own.
+	// feature, not one more — but selected its border takes the peach accent.
 	r := row{kind: rowGroup, name: ungroupedLabel}
 
-	if bg := cardFrame(r, true).GetBackground(); bg != lipgloss.Color("215") {
-		t.Errorf("selected ungrouped background = %v, want the peach accent", bg)
+	if border := cardFrame(r, true).GetBorderTopForeground(); border != lipgloss.Color("215") {
+		t.Errorf("selected ungrouped border = %v, want the peach accent", border)
 	}
 }
 

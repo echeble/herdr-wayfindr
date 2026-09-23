@@ -3,6 +3,13 @@
 All notable changes to Wayfindr are recorded here, one entry per plugin
 version (`herdr-plugin.toml`'s `version` field), newest first.
 
+## [0.20.0] - 2026-09-22
+
+### Added
+
+- Interactive web documentation and 3-panel Herdr desktop simulator under `docs/` featuring native Herdr sidebar, Wayfindr pane, and live terminal panel with preset states.
+- Configurable `pane.theme` setting (`auto`, `ink`, `paper`) with adaptive semantic status styling for both light and dark backgrounds.
+
 ## [0.19.0] - 2026-09-22
 
 ### Changed
