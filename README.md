@@ -4,7 +4,7 @@
 
 ![Go](https://img.shields.io/badge/go-1.24%2B-00ADD8.svg)
 ![herdr 0.9.0+](https://img.shields.io/badge/herdr-0.9.0%2B-8a2be2)
-![herdr-wayfindr v0.21.0](https://img.shields.io/badge/herdr-wayfindr-v0.21.0-blue)
+![herdr-wayfindr v0.21.0](https://img.shields.io/badge/herdr--wayfindr-v0.21.0-blue)
 ![platforms: linux, macOS](https://img.shields.io/badge/platforms-linux%2C%20macOS-informational)
 
 A [Herdr](https://herdr.dev) plugin that brings scattered microservice checkouts, ticket branches, and agent statuses together into a cohesive sidebar pane.
